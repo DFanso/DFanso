@@ -6,7 +6,7 @@
 - 🌱 I’m currently learning **Programming languages**
 - 👯 I’m looking to collaborate on **Open source and commercial projects**
 - 🤝 I’m looking for help with **Penetration Testing**
-- ❤ I’m **open source lover**
+- ❤ I’m **Open Source Lover**
 - 💬 Ask me about **Programming, Graphic Designing and Video Editing**
 - 📫 How to reach me **leogavin123@outlook.com**
   </br>
