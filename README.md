@@ -10,6 +10,8 @@
 - 💬 Ask me about **Programming, Graphic Designing and Video Editing**
 - 📫 How to reach me **leogavin123@outlook.com**
   
-<p align="left"> <a href="https://twitter.com/LEOTOGAVIN" target="blank"><img src="https://img.shields.io/twitter/follow/LEOTOGAVIN?logo=twitter&style=for-the-badge" alt="LEOTOGAVIN" /></a> </p>
+![Twitter Follow](https://img.shields.io/twitter/follow/LEOTOGAVIN?color=1DA1F2&label=Followers&logo=twitter&style=for-the-badge)
+![GitHub followers](https://img.shields.io/github/followers/DFanso?logo=GitHub&style=for-the-badge)
+[![Linkedin](https://img.shields.io/badge/-CONNECT-blue?style=for-the-badge&logo=Linkedin&link=https://www.linkedin.com/in/leo-gavin-8841ba18b/)](https://www.linkedin.com/in/leo-gavin-8841ba18b/)
 
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
