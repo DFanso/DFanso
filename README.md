@@ -9,7 +9,8 @@
 - ❤ I’m open source lover
 - 💬 Ask me about **Programming, Graphic Designing and Video Editing**
 - 📫 How to reach me **leogavin123@outlook.com**
-  
+  </br>
+  </br>
   <p align="left"> <img src="https://komarev.com/ghpvc/?username=DFanso&color=brightgreen" alt="DFanso" /> </p>
   
 ![Twitter Follow](https://img.shields.io/twitter/follow/LEOTOGAVIN?color=1DA1F2&label=Followers&logo=twitter&style=for-the-badge)
