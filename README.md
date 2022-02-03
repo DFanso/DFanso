@@ -1,6 +1,6 @@
 ### <h1 align="center">👋 Hi, I’m Leo Gavin</h1>
 
-<img align="center" src="https://i.ibb.co/kX8TZYp/11111111111.jpg" alt="11111111111" border="0">
+<img style="text-align: center" src="https://i.ibb.co/kX8TZYp/11111111111.jpg" alt="11111111111" border="0">
 
 - 🔭 I'm currently following **Software Engineering degree at NSBM Green University**
 - 🌱 I’m currently learning **Programming languages**
