@@ -48,4 +48,5 @@
 
 ![Stats](https://github-readme-stats.vercel.app/api?username=DFanso&show_icons=true&theme=tokyonight)
 ![Total Contributions](https://github-readme-streak-stats.herokuapp.com/?user=DFanso&show_icons=true&theme=tokyonight)
+![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=DFanso&layout=compact&langs_count=8&theme=tokyonight)
 
