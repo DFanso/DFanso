@@ -43,7 +43,7 @@
 ![Git](https://img.shields.io/badge/-Git-black?style=flat-square&logo=git)
 ![GitHub](https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github)
 <br />
-holopin.me/dfanso)](https://holopin.io/@dfanso)
+[![@dfanso's Holopin board](https://holopin.me/dfanso)](https://holopin.io/@dfanso)
 
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
