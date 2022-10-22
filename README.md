@@ -14,7 +14,7 @@
   </br>
   <p align="left"> <img src="https://komarev.com/ghpvc/?username=DFanso&color=brightgreen" alt="DFanso" /> </p>
   
-![Twitter Follow](https://img.shields.io/twitter/follow/LEOTOGAVIN?color=1DA1F2&label=Followers&logo=twitter&style=for-the-badge)
+![Twitter Follow](https://img.shields.io/twitter/follow/dfansoo)
 ![GitHub followers](https://img.shields.io/github/followers/DFanso?logo=GitHub&style=for-the-badge)
 [![Linkedin](https://img.shields.io/badge/-CONNECT-blue?style=for-the-badge&logo=Linkedin&link=https://www.linkedin.com/in/leo-gavin-8841ba18b/)](https://www.linkedin.com/in/leo-gavin-8841ba18b/)
 
