@@ -48,7 +48,7 @@
 <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
 
-![Stats](https://github-readme-stats.vercel.app/api?username=DFanso&show_icons=true&theme=tokyonight)
+![Stats](https://github-readme-stats-sigma-five.vercel.app//api?username=DFanso&show_icons=true&theme=tokyonight)
 ![Total Contributions](https://github-readme-streak-stats.herokuapp.com/?user=DFanso&show_icons=true&theme=tokyonight)
 ![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=DFanso&layout=compact&langs_count=8&theme=tokyonight)
 
