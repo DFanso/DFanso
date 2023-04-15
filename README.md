@@ -2,7 +2,7 @@
 
 <div align="center" ><img src="https://i.ibb.co/kX8TZYp/11111111111.jpg" alt="11111111111" border="0"></div>
 
-- 🔭 I'm currently following **Software Engineering degree at NSBM Green University**
+- 🔭 I'm currently following **Software Engineering degree at Plymouth University**
 - 🌱 I’m currently learning **Programming languages**
 - 👯 I’m looking to collaborate on **Open source and commercial projects**
 - 🤝 I’m looking for help with **Penetration Testing**
