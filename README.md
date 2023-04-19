@@ -1,4 +1,4 @@
-##<h1 align="center">👋 Hi, I’m Leo Gavin</h1>
+<h1 align="center">👋 Hi, I’m Leo Gavin</h1>
 
 -🔭 I'm currently following **Software Engineering degree at Plymouth University**
 
