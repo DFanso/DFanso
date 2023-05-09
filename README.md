@@ -1,6 +1,7 @@
 <h1 align="center">👋 Hi, I’m Leo Gavin</h1>
 
-![Banner](https://github.com/DFanso/Asanda65/blob/main/Blue%20Geometric%20Technology%20LinkedIn%20Banner.jpg)
+![Banner](https://github.com/DFanso/DFanso/blob/main/Banner.png)
+
 
 -🔭 I'm currently following **Software Engineering degree at Plymouth University**
 
