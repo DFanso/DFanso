@@ -17,7 +17,7 @@
 
 -📫 How to reach me **leogavin123@outlook.com**
 
--🕸️ Portfolio Website **https://dfanso.github.io/Portfolio-Site/**
+-🕸️ Portfolio Website **https://portfolio.dfanso.dev**
   </br>
   </br>
   <p align="left"> <img src="https://komarev.com/ghpvc/?username=DFanso&color=brightgreen" alt="DFanso" /> </p>
