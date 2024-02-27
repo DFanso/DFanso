@@ -13,7 +13,7 @@
 
 -❤ I’m **Open Source Lover**
 
--💬 Ask me about **Programming, Graphic Designing and Video Editing**
+-💬 Ask me about **Programming, Cloud, DevOps, Graphic Designing and Video Editing**
 
 -📫 How to reach me **leogavin123@outlook.com**
 
