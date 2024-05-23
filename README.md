@@ -1,6 +1,6 @@
 <h1 align="center">👋 Hi, I’m Leo Gavin</h1>
 
-![Banner](https://github.com/DFanso/DFanso/blob/main/BannerNew.png)
+![Banner](https://github.com/DFanso/DFanso/blob/main/posterGit.png)
 
 
 -🔭 I'm currently following **Software Engineering degree at Plymouth University**
