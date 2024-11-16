@@ -3,17 +3,15 @@
 ![Banner](https://github.com/DFanso/DFanso/blob/main/posterGit.png)
 
 
--🔭 I'm currently following **Software Engineering degree at Plymouth University**
+-🔭 I hold a **Software Engineering degree from Plymouth University**
 
--🌱 I’m currently learning **Programming languages**
+-🌱 Learning **DevOps Pipelines & Software Development Best Practices**
 
 -👯 I’m looking to collaborate on **Open source and commercial projects**
 
--🤝 I’m looking for help with **Penetration Testing**
+-❤ I’m a **Open Source Lover**
 
--❤ I’m **Open Source Lover**
-
--💬 Ask me about **Programming, Cloud, DevOps, Graphic Designing and Video Editing**
+-💬 Ask me about **Backend Development & DevOps**
 
 -📫 How to reach me **leogavin123@outlook.com**
 
