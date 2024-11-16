@@ -3,7 +3,7 @@
 ![Banner](https://github.com/DFanso/DFanso/blob/main/posterGit.png)
 
 
--🔭 I hold a **Software Engineering degree from Plymouth University**
+-🔭 I hold a **First-Class Honours in Software Engineering degree from Plymouth University**
 
 -🌱 Learning **DevOps Pipelines & Software Development Best Practices**
 
