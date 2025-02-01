@@ -17,7 +17,7 @@ $ ls tech/
 ├── Cloud & Deploy
 │   └── AWS, Azure, CloudFlare, Docker, Kubernetes
 ├── Backend & Data
-│   └── Node.js, Go, Python, PostgreSQL, MongoDB, Redis
+│   └── Nest.js, Node.js, Go, Python, PostgreSQL, MongoDB, Redis
 ├── Frontend
 │   └── React.js, Next.js, TailwindCSS
 └── DevOps
