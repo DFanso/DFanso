@@ -20,18 +20,6 @@ $ #about
 DevOps/Backend specialist crafting efficient and scalable solutions.
 Transforming complex challenges into elegant architectures.
 
-$ #projects
-├── [WEB] ./techxeed
-│   └── Digital solutions platform: web dev, mobile apps, AI solutions
-│   └── Next.js, Nest.js, MongoDB, TailwindCSS, Firebase, AWS
-│
-├── [APP] ./quickquest
-│   └── Location-based platform with real-time chat and geospatial features
-│   └── Next.js, Nest.js, MongoDB, Python, AWS
-│
-└── [SYS] ./cinemagic
-    └── Cinema ticket booking system with real-time seat selection
-    └── React.js, Redux, Nest.js, MongoDB
 ```
 
 ## 🛠️ Tech Stack
@@ -47,6 +35,14 @@ $ ls tech/
 └── DevOps
     └── Terraform, Jenkins, GitHub-Actions, Prometheus, Grafana
 ```
+
+## 🏆 Achievements
+
+<div align="center">
+  
+[![@dfanso's Holopin board](https://holopin.me/dfanso)](https://holopin.io/@dfanso)
+
+</div>
 
 ## 📊 GitHub Stats
 
