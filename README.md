@@ -15,11 +15,14 @@
 
 </div>
 
+<div align="center">
+  <img src="https://github-readme-quotes.herokuapp.com/quote?theme=tokyonight&animation=grow_out_in&layout=default&font=default">
+</div>
+
 ```bash
 $ #about
 DevOps/Backend specialist crafting efficient and scalable solutions.
 Transforming complex challenges into elegant architectures.
-
 ```
 
 ## 🛠️ Tech Stack
@@ -35,6 +38,10 @@ $ ls tech/
 └── DevOps
     └── Terraform, Jenkins, GitHub-Actions, Prometheus, Grafana
 ```
+
+<div align="center">
+  <img src="https://github-profile-trophy.vercel.app/?username=DFanso&theme=tokyonight&no-frame=false&no-bg=false&margin-w=4&row=1" alt="trophy">
+</div>
 
 ## 🏆 Achievements
 
@@ -57,6 +64,8 @@ $ ls tech/
 [![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=DFanso&theme=tokyonight)](https://git.io/streak-stats)
 
 </div>
+
+<img src="https://github.com/DFanso/DFanso/blob/output/github-contribution-grid-snake.svg" alt="Snake Animation" />
 
 <div align="center">
   
