@@ -12,13 +12,16 @@
 </div>
 
 ### 🛠️ Tech Stack
-```js
-{
-  "Cloud & Deploy": ["AWS", "Azure", "Docker", "Kubernetes"],
-  "Languages": ["JavaScript: 44.66%", "TypeScript: 17.48%", "HTML: 18.02%", "CSS: 12.62%", "Java: 7.22%"],
-  "Backend": ["Node.js", "Go", "Python", "PostgreSQL", "MongoDB"],
-  "DevOps": ["Terraform", "Jenkins", "GitHub-Actions", "Prometheus"]
-}
+```bash
+$ ls tech/
+├── Cloud & Deploy
+│   └── AWS, Azure, CloudFlare, Docker, Kubernetes
+├── Backend & Data
+│   └── Node.js, Go, Python, PostgreSQL, MongoDB, Redis
+├── Frontend
+│   └── React.js, Next.js, TailwindCSS
+└── DevOps
+    └── Terraform, Jenkins, GitHub-Actions, Prometheus, Grafana
 ```
 
 ### 📊 GitHub Stats
