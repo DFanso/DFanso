@@ -1,60 +1,95 @@
-<h1 align="center">👋 Hi, I’m Leo Gavin</h1>
+# <div align="center">👨‍💻 Leo Gavin | Software Engineer</div>
 
-![Banner](https://github.com/DFanso/DFanso/blob/main/posterGit.png)
+<div align="center">
+  <img src="https://github.com/DFanso/DFanso/blob/main/posterGit.png" alt="Banner">
+</div>
 
-
--🔭 I hold a **First-Class Honours in Software Engineering degree from Plymouth University**
-
--🌱 Learning **DevOps Pipelines & Software Development Best Practices**
-
--👯 I’m looking to collaborate on **Open source and commercial projects**
-
--❤ I’m a **Open Source Lover**
-
--💬 Ask me about **Backend Development & DevOps**
-
--📫 How to reach me **leogavin123@outlook.com**
-
--🕸️ Portfolio Website **https://portfolio.dfanso.dev**
-  </br>
-  </br>
-  <p align="left"> <img src="https://komarev.com/ghpvc/?username=DFanso&color=brightgreen" alt="DFanso" /> </p>
+<div align="center">
   
-![Twitter Follow](https://img.shields.io/twitter/follow/dfansoo)
-![GitHub followers](https://img.shields.io/github/followers/DFanso?logo=GitHub&style=for-the-badge)
-[![Linkedin](https://img.shields.io/badge/-CONNECT-blue?style=for-the-badge&logo=Linkedin&link=https://www.linkedin.com/in/leo-gavin-8841ba18b/)](https://www.linkedin.com/in/leo-gavin-8841ba18b/)
+[![Twitter Follow](https://img.shields.io/twitter/follow/dfansoo?style=social)](https://twitter.com/dfansoo)
+[![GitHub followers](https://img.shields.io/github/followers/DFanso?logo=GitHub&style=flat-square)](https://github.com/DFanso)
+[![Linkedin](https://img.shields.io/badge/LinkedIn-Connect-blue?style=flat-square&logo=linkedin)](https://www.linkedin.com/in/leo-gavin-8841ba18b/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-success?style=flat-square&logo=safari)](https://portfolio.dfanso.dev)
+[![Email](https://img.shields.io/badge/Email-Contact-red?style=flat-square&logo=gmail)](mailto:leogavin123@outlook.com)
 
-<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+</div>
 
-### Connect with me :
+## 🎯 About Me
 
-<a href="https://twitter.com/LEOTOGAVIN" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/twitter.svg" alt="LEOTOGAVIN" height="30" width="40" /></a><a href="https://www.linkedin.com/in/leo-gavin-8841ba18b/" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/linked-in-alt.svg" alt="Leo Gavin" height="30" width="40" /></a><a href="https://stackoverflow.com/users/14575719/dfanso" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/stack-overflow.svg" alt="dfanso" height="30" width="40" /></a><a href="https://www.facebook.com/DFansoo/" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/facebook.svg" alt="DFansoo" height="30" width="40" /></a><a href="https://www.instagram.com/dfansoo/" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/instagram.svg" alt="dfansoo" height="30" width="40" /></a><a href="https://medium.com/@DFanso" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/medium.svg" alt="DFanso" height="30" width="40" /></a><a href="https://www.hackerrank.com/leogavin123" target="blank"><img align="center" src="https://raw.githubusercontent.com/rahuldkjain/github-profile-readme-generator/master/src/images/icons/Social/hackerrank.svg" alt="leogavin123" height="30" width="40" /></a></p>
+> First-Class Honours Software Engineering graduate from Plymouth University, passionate about Backend Development, DevOps, and Open Source contributions.
 
+- 🔭 Currently focusing on **DevOps Pipelines & Software Development Best Practices**
+- 💡 Open to collaborating on **innovative open source and commercial projects**
+- 💬 Ask me about **Backend Architecture, DevOps, and Cloud Solutions**
+- ❤️ Open Source Enthusiast and Active Contributor
+- 🌱 Always learning and exploring new technologies
 
-### Languages and Tools
+## 🛠️ Tech Stack
 
-![JavaScript](https://img.shields.io/badge/-JavaScript-black?style=flat-square&logo=javascript)
-![Nodejs](https://img.shields.io/badge/-Nodejs-black?style=flat-square&logo=Node.js)
-![React](https://img.shields.io/badge/-React-black?style=flat-square&logo=react)
-![Flutter](https://img.shields.io/badge/-Flutter-02569B?style=flat-square&logo=flutter)
-![HTML5](https://img.shields.io/badge/-HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
-![CSS3](https://img.shields.io/badge/-CSS3-1572B6?style=flat-square&logo=css3)
-![Bootstrap](https://img.shields.io/badge/-Bootstrap-563D7C?style=flat-square&logo=bootstrap)
-![MongoDB](https://img.shields.io/badge/-MongoDB-black?style=flat-square&logo=mongodb)
-![MySQL](https://img.shields.io/badge/-MySQL-black?style=flat-square&logo=mysql)
-![Firebase](https://img.shields.io/badge/Firebase-007ACC?style=flat-square&logo=firebase)
-![Docker](https://img.shields.io/badge/-Docker-black?style=flat-square&logo=docker)
-![Amazon AWS](https://img.shields.io/badge/Amazon%20AWS-232F3E?style=flat-square&logo=amazon-aws)
-![Google Cloud](https://img.shields.io/badge/Google%20Cloud-black?style=flat-square&logo=google-cloud)
-![Git](https://img.shields.io/badge/-Git-black?style=flat-square&logo=git)
-![GitHub](https://img.shields.io/badge/-GitHub-181717?style=flat-square&logo=github)
-<br />
+<div align="center">
+
+### Core Technologies
+
+![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![Node.js](https://img.shields.io/badge/-Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/-React-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Flutter](https://img.shields.io/badge/-Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
+
+### Frontend & Design
+
+![HTML5](https://img.shields.io/badge/-HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/-CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/-Bootstrap-7952B3?style=for-the-badge&logo=bootstrap&logoColor=white)
+
+### Database & Cloud
+
+![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![MySQL](https://img.shields.io/badge/-MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![Firebase](https://img.shields.io/badge/-Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![AWS](https://img.shields.io/badge/-AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![Google Cloud](https://img.shields.io/badge/-Google_Cloud-4285F4?style=for-the-badge&logo=google-cloud&logoColor=white)
+
+### DevOps & Tools
+
+![Docker](https://img.shields.io/badge/-Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Git](https://img.shields.io/badge/-Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+![GitHub](https://img.shields.io/badge/-GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+
+</div>
+
+## 🏆 Achievements
+
+<div align="center">
+  
 [![@dfanso's Holopin board](https://holopin.me/dfanso)](https://holopin.io/@dfanso)
 
-<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+</div>
 
+## 📊 GitHub Statistics
 
-![Stats](https://github-readme-stats-sigma-five.vercel.app//api?username=DFanso&show_icons=true&theme=tokyonight)
-![Total Contributions](https://github-readme-streak-stats.herokuapp.com/?user=DFanso&show_icons=true&theme=tokyonight)
-![Top Langs](https://github-readme-stats.vercel.app//api/top-langs/?username=DFanso&layout=compact&langs_count=8&theme=tokyonight)
+<div align="center">
 
+![Stats](https://github-readme-stats-sigma-five.vercel.app/api?username=DFanso&show_icons=true&theme=tokyonight)
+![Streak](https://github-readme-streak-stats.herokuapp.com/?user=DFanso&theme=tokyonight)
+![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=DFanso&layout=compact&theme=tokyonight)
+
+</div>
+
+## 🤝 Connect With Me
+
+<div align="center">
+  
+[![Twitter](https://img.shields.io/badge/-Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/LEOTOGAVIN)
+[![LinkedIn](https://img.shields.io/badge/-LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/leo-gavin-8841ba18b/)
+[![Stack Overflow](https://img.shields.io/badge/-Stack_Overflow-FE7A16?style=for-the-badge&logo=stack-overflow&logoColor=white)](https://stackoverflow.com/users/14575719/dfanso)
+[![Facebook](https://img.shields.io/badge/-Facebook-1877F2?style=for-the-badge&logo=facebook&logoColor=white)](https://www.facebook.com/DFansoo/)
+[![Instagram](https://img.shields.io/badge/-Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/dfansoo/)
+[![Medium](https://img.shields.io/badge/-Medium-000000?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@DFanso)
+[![HackerRank](https://img.shields.io/badge/-HackerRank-2EC866?style=for-the-badge&logo=hackerrank&logoColor=white)](https://www.hackerrank.com/leogavin123)
+
+</div>
+
+---
+<div align="center">
+  <img src="https://komarev.com/ghpvc/?username=DFanso&color=brightgreen&style=flat-square" alt="Profile Views">
+</div>
