@@ -51,10 +51,9 @@ Total Stars: 18 | Total PRs: 440 | Total Issues: 9
   <img alt="github-snake" src="https://github.com/DFanso/DFanso/blob/output/github-snake.svg" />
 </picture>
 
-<div align="center">
-  <img src="https://komarev.com/ghpvc/?username=DFanso&color=brightgreen&style=flat-square" alt="Profile Views">
-</div>
 
+<div align="center">
+  
 [![Twitter](https://img.shields.io/badge/-Twitter-1DA1F2?style=for-the-badge&logo=twitter&logoColor=white)](https://twitter.com/LEOTOGAVIN)
 [![LinkedIn](https://img.shields.io/badge/-LinkedIn-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/leo-gavin-8841ba18b/)
 [![Stack Overflow](https://img.shields.io/badge/-Stack_Overflow-FE7A16?style=for-the-badge&logo=stack-overflow&logoColor=white)](https://stackoverflow.com/users/14575719/dfanso)
