@@ -31,15 +31,6 @@ $ ls tech/
 ![](https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=DFanso&theme=tokyonight)
 ![](https://github-profile-summary-cards.vercel.app/api/cards/stats?username=DFanso&theme=tokyonight)
 
-<details>
-<summary>More Stats</summary>
-
-Total Contributions: 4,043 (Sep 18, 2020 - Present)
-Current Streak: 9 Days (Jan 24 - Feb 1)
-Longest Streak: 23 Days (Dec 10, 2023 - Jan 1, 2024)
-Total Stars: 18 | Total PRs: 440 | Total Issues: 9
-
-</details>
 
 [![@dfanso's Holopin board](https://holopin.me/dfanso)](https://holopin.io/@dfanso)
 
