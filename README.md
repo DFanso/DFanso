@@ -30,7 +30,7 @@ $ ls tech/
 ![](https://github-profile-summary-cards.vercel.app/api/cards/profile-details?username=DFanso&theme=tokyonight)
 ![](https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=DFanso&theme=tokyonight)
 ![](https://github-profile-summary-cards.vercel.app/api/cards/stats?username=DFanso&theme=tokyonight)
-
+![](https://streak-stats.demolab.com?user=dfanso&theme=tokyonight)
 
 [![@dfanso's Holopin board](https://holopin.me/dfanso)](https://holopin.io/@dfanso)
 
