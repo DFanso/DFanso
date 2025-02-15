@@ -8,7 +8,7 @@
 [![Twitter](https://img.shields.io/badge/-Twitter-1DA1F2?style=flat-square&logo=twitter&logoColor=white)](https://twitter.com/LEOTOGAVIN)
 [![LinkedIn](https://img.shields.io/badge/-LinkedIn-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/leo-gavin-8841ba18b/)
 [![GitHub](https://img.shields.io/github/followers/DFanso?label=follow&style=flat-square&logo=github&logoColor=white)](https://github.com/DFanso)
-[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-success?style=flat-square&logo=safari)](https://portfolio.dfanso.dev)
+[![Portfolio](https://img.shields.io/badge/Portfolio-Visit-success?style=flat-square&logo=safari)](https://itsme.dfanso.dev)
 </div>
 
 ### 🛠️ Tech Stack
