@@ -186,16 +186,19 @@ def player(s):
         ('book-marked', BLUE, s['repos'], 'repositories'),
         ('users', GREEN, s['followers'], 'followers'),
         ('eye', CYAN, s['views'], 'profile_views'),
-        ('calendar-days', AMBER, s['year'], f"commits_{s['today'].year}"),
+        ('calendar-days', AMBER, s['year'], f"contributions_{s['today'].year}"),
     ]
     tw, th, gap, tx0, ty0 = 155, 80, 12, 320, 60
     out = []
     for i, (icon, col, value, label) in enumerate(tiles):
         x, y = tx0 + (i % 4) * (tw + gap), ty0 + (i // 4) * (th + gap)
+        # A label too long for the tile at 11.5px (mono, .6em a character, colon included) is set
+        # smaller so it ends 12px inside the edge.
+        ls = min(11.5, (tw - 36 - 12) / ((len(label) + 1) * .6))
         out.append(f'''<g transform="translate({x} {y})">{raised(0, 0, tw, th, 10, CARD, LIP, 5, EDGE)}
   <rect x="0" y="12" width="3" height="20" rx="1.5" fill="{col[1]}"/>
   {glyph(icon, 14, 14, 15, col[1], 2.2)}
-  <text x="36" y="26" font-family="{MONO}" font-size="11.5" font-weight="700" fill="{TEXT_DIM}">{esc(label)}<tspan fill="{TEXT_DIM}">:</tspan></text>
+  <text x="36" y="26" font-family="{MONO}" font-size="{ls:g}" font-weight="700" fill="{TEXT_DIM}">{esc(label)}<tspan fill="{TEXT_DIM}">:</tspan></text>
   <text x="14" y="64" font-family="{MONO}" font-size="25" font-weight="800" fill="{TEXT}">{fmt(value)}</text>
 </g>''')
 
@@ -207,7 +210,7 @@ def player(s):
 </g>'''
     body = f'''{window(W, H - DEPTH, 'leo@dfanso: ~ — neofetch', 'np', glow=(GREEN[2], .1, .4, .5))}
 {big}{''.join(out)}'''
-    label = (f"{s['total']:,} lifetime contributions, {s['year']:,} this year. Pull requests {s['prs']:,}, issues {s['issues']:,}, "
+    label = (f"{s['total']:,} lifetime contributions, {s['year']:,} contributions this year. Pull requests {s['prs']:,}, issues {s['issues']:,}, "
              f"contributed to {s['contributed']} repos, {s['stars']} stars, {s['repos']} repositories, {s['followers']} followers, {fmt(s['views'])} profile views.")
     return svg(W, H + PAD, label, body)
 
