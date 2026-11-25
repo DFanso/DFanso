@@ -1,0 +1,49 @@
+name: Generate profile assets
+
+# Builds the live stat panels (stats, streak, languages) and the framed contribution snake,
+# then publishes them together to the `output` branch (one job, so neither overwrites the other).
+# The README reads them from raw.githubusercontent.com/DFanso/DFanso/output/.
+on:
+  schedule:
+    # Hourly, off the top of the hour: GitHub delays scheduled runs at busy times and drops some.
+    - cron: "41 * * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+
+      - name: Generate stat cards
+        env:
+          # Optional STATS_TOKEN (a personal token with read:user) also counts PRs, issues and languages
+          # in private and organisation repos; the default token only sees public ones.
+          GITHUB_TOKEN: ${{ secrets.STATS_TOKEN || secrets.GITHUB_TOKEN }}
+        run: python3 .github/scripts/stat_cards.py "${{ github.repository_owner }}" dist
+
+      - name: Generate snake SVG
+        uses: Platane/snk@d8f6715049803e982ee5ff501b6b9b7d5deeb09b # v3.5.0
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/github-snake-dark.svg?color_snake=#f5a98f&color_dots=#1f2638,#2f5f46,#4f8f5f,#7fbf78,#c4ecb6
+
+      - name: Frame the snake to match the README
+        run: python3 .github/scripts/frame_snake.py dist/github-snake-dark.svg dist/snake.svg
+
+      - name: Push to output branch
+        uses: crazy-max/ghaction-github-pages@df5cc2bfa78282ded844b354faee141f06b41865 # v4.2.0
+        with:
+          target_branch: output
+          build_dir: dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

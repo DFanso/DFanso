@@ -1,0 +1,37 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a855f7"/>
+      <stop offset="0.55" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+    <radialGradient id="sheen" cx="0.25" cy="0.15" r="0.9">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.18"/>
+      <stop offset="0.6" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="iconShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="6" />
+      <feOffset dx="0" dy="4" result="off" />
+      <feFlood flood-color="#1e1b4b" flood-opacity="0.45" />
+      <feComposite in2="off" operator="in" />
+      <feComposite in="SourceGraphic" />
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#sheen)"/>
+
+  <!-- Lucide "Wifi" icon (CC BY 4.0, lucide.dev), centered and scaled to 384px -->
+  <g transform="translate(64 64) scale(16)"
+     fill="none"
+     stroke="#fff"
+     stroke-width="2.25"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     filter="url(#iconShadow)">
+    <path d="M12 20h.01"/>
+    <path d="M2 8.82a15 15 0 0 1 20 0"/>
+    <path d="M5 12.859a10 10 0 0 1 14 0"/>
+    <path d="M8.5 16.429a5 5 0 0 1 7 0"/>
+  </g>
+</svg>

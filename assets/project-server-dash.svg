@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="226" viewBox="0 0 500 226" role="img" aria-label="Server Dash (Author): Dashboard · Self-Hosted. A self-hosted dashboard for a V2rayA hotspot: CPU, memory, throughput and V2rayA status, shipped as one binary. Built with Rust, React, TypeScript.">
+<title>Server Dash (Author): Dashboard · Self-Hosted. A self-hosted dashboard for a V2rayA hotspot: CPU, memory, throughput and V2rayA status, shipped as one binary. Built with Rust, React, TypeScript.</title>
+<style>
+.bob { animation: bob 4.5s ease-in-out infinite; animation-delay: -1.0s; }
+@keyframes bob { 50% { transform: translateY(-4px); } }
+.shine { animation: shine 7s ease-in-out infinite; animation-delay: 1.0s; }
+@keyframes shine { 0%, 4% { transform: skewX(-20deg) translateX(-80px); } 24%, 100% { transform: skewX(-20deg) translateX(620px); } }
+.go { animation: go 2.4s ease-in-out infinite; animation-delay: -1.0s; }
+@keyframes go { 50% { transform: translate(2px, -2px); } }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }</style>
+<defs><filter id="soft" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#05040a" flood-opacity="0.35"/></filter>
+<clipPath id="card"><rect x="0" y="0" width="494" height="206" rx="22"/></clipPath>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+<g filter="url(#soft)"><rect x="0" y="6" width="494" height="206" rx="22" fill="#090c12"/><rect x="0" y="0" width="494" height="206" rx="22" fill="#1e2536"/><rect x="0.75" y="0.75" width="492.5" height="204.5" rx="21.25" fill="none" stroke="#252d42" stroke-width="1.5"/></g>
+<g clip-path="url(#card)"><rect class="shine" x="0" y="0" width="80" height="226" fill="url(#g)" transform="skewX(-20)"/></g>
+<g transform="translate(22 22)"><g class="bob"><rect y="5" width="68" height="68" rx="17.7" fill="#090c12"/><clipPath id="ic-server-dash"><rect width="68" height="68" rx="17.7"/></clipPath><g clip-path="url(#ic-server-dash)"><svg width="68" height="68" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="sdbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a855f7"/>
+      <stop offset="0.55" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </linearGradient>
+    <radialGradient id="sdsheen" cx="0.25" cy="0.15" r="0.9">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.18"/>
+      <stop offset="0.6" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="sdiconShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feGaussianBlur stdDeviation="6" />
+      <feOffset dx="0" dy="4" result="off" />
+      <feFlood flood-color="#1e1b4b" flood-opacity="0.45" />
+      <feComposite in2="off" operator="in" />
+      <feComposite in="SourceGraphic" />
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#sdbg)"/>
+  <rect width="512" height="512" rx="112" fill="url(#sdsheen)"/>
+
+  <!-- Lucide "Wifi" icon (CC BY 4.0, lucide.dev), centered and scaled to 384px -->
+  <g transform="translate(64 64) scale(16)"
+     fill="none"
+     stroke="#fff"
+     stroke-width="2.25"
+     stroke-linecap="round"
+     stroke-linejoin="round"
+     filter="url(#sdiconShadow)">
+    <path d="M12 20h.01"/>
+    <path d="M2 8.82a15 15 0 0 1 20 0"/>
+    <path d="M5 12.859a10 10 0 0 1 14 0"/>
+    <path d="M8.5 16.429a5 5 0 0 1 7 0"/>
+  </g>
+</svg></g><rect width="68" height="34" rx="17.7" fill="#fff" opacity=".07"/><rect x=".75" y=".75" width="66.5" height="66.5" rx="16.95" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="1.5"/></g></g>
+<rect x="108" y="22" width="70" height="22" rx="11" fill="#8cbd86" fill-opacity=".22" stroke="#a9d2a3" stroke-opacity=".6" stroke-width="1.5"/>
+<text x="143" y="37" font-family="ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', Consolas, 'Liberation Mono', monospace" font-size="11" font-weight="800" letter-spacing=".5" fill="#d0e8cc" text-anchor="middle">Author</text>
+<text x="108" y="74" font-family="'SF Pro Rounded', ui-rounded, 'Nunito', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif" font-size="24" font-weight="800" fill="#f2f1ec">Server Dash</text>
+<text x="108" y="95" font-family="ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', Consolas, 'Liberation Mono', monospace" font-size="11.5" fill="#677089">Dashboard · Self-Hosted</text>
+<g transform="translate(462 33)"><circle r="14" fill="#252d42"/>
+<g class="go"><path d="M-4 4 L4 -4 M-2.5 -4 H4 V2.5" fill="none" stroke="#a9d2a3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g></g>
+<text x="22" y="132" font-family="'SF Pro Rounded', ui-rounded, 'Nunito', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif" font-size="13.5" fill="#a2abc0">A self-hosted dashboard for a V2rayA hotspot: CPU, memory,</text><text x="22" y="152" font-family="'SF Pro Rounded', ui-rounded, 'Nunito', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif" font-size="13.5" fill="#a2abc0">throughput and V2rayA status, shipped as one binary.</text>
+<rect x="22" y="168" width="48" height="22" rx="11" fill="#111620" stroke="#273044" stroke-width="1.5"/><text x="46.0" y="183" font-family="ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', Consolas, 'Liberation Mono', monospace" font-size="11" font-weight="700" fill="#a2abc0" text-anchor="middle">Rust</text><rect x="78" y="168" width="54" height="22" rx="11" fill="#111620" stroke="#273044" stroke-width="1.5"/><text x="105.0" y="183" font-family="ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', Consolas, 'Liberation Mono', monospace" font-size="11" font-weight="700" fill="#a2abc0" text-anchor="middle">React</text><rect x="140" y="168" width="89" height="22" rx="11" fill="#111620" stroke="#273044" stroke-width="1.5"/><text x="184.5" y="183" font-family="ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', Consolas, 'Liberation Mono', monospace" font-size="11" font-weight="700" fill="#a2abc0" text-anchor="middle">TypeScript</text>
+</svg>

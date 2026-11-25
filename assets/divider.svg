@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="32" viewBox="0 0 1000 32" role="img" aria-label="">
+<title></title>
+<style>
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }</style>
+<path d="M60 10 H940" stroke="#9aa3de" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 9"/>
+</svg>
