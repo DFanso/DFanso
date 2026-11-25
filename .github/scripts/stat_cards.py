@@ -17,7 +17,6 @@ from collections import Counter
 from theme import (AMBER, BLUE, CARD, CYAN, DEPTH, EDGE, GREEN, LIP, MONO, PAD, PURPLE, RED, SLOT, TEXT, TEXT_DIM,
                    TEXT_SOFT, command, esc, glyph, raised, svg, window)
 
-SPARK_DAYS = 60
 
 
 # ───────────────────────────── data ─────────────────────────────
@@ -142,8 +141,7 @@ def collect(login):
         'longest': longest, 'longest_range': best,
         'langs': [(name, size, lang_color[name]) for name, size in langs.most_common()],
         'repos_per_lang': repos_per_lang,
-        # The last SPARK_DAYS days, oldest first, for the streak card's sparkline.
-        'recent': [days.get(today - dt.timedelta(days=k), 0) for k in range(SPARK_DAYS - 1, -1, -1)],
+        'last_active': max((d for d in order if days[d]), default=None),
     }
 
 
@@ -157,19 +155,6 @@ def fmt(n):
     if n >= 10_000:
         return f'{n / 1000:.1f}k'.replace('.0k', 'k')
     return f'{n:,}'
-
-
-def day(d):
-    return f'{d:%b} {d.day}, {d.year}' if d else ''
-
-
-def span(r):
-    if not r or not r[0]:
-        return 'start one today'
-    a, b = r
-    if a == b:
-        return day(a)
-    return f'{a:%b} {a.day} – {b:%b} {b.day}, {b.year}' if a.year == b.year else f'{day(a)} – {day(b)}'
 
 
 # ───────────────────────────── cards ─────────────────────────────
@@ -218,55 +203,53 @@ def player(s):
 PANEL_H = 330
 
 
-def sparkline(s, x, y, w, h):
-    """The last SPARK_DAYS days as little raised columns, the current streak lit green."""
-    days = s['recent']
-    n = len(days)
-    step = w / n
-    bw = step * .62
-    top = max(days) or 1
-    streak_from = n - s['current'] if s['current'] else n
-    if s['current'] and not days[-1]:
-        streak_from -= 1  # today hasn't started; the streak ended yesterday
-    out = [f'<rect x="{x - 8}" y="{y - 8}" width="{w + 16}" height="{h + 30}" rx="8" fill="{SLOT}"/>'
-           f'<path d="M{x} {y + h + .5} H{x + w}" stroke="{EDGE}" stroke-width="1"/>']
-    for i, v in enumerate(days):
-        bx = x + i * step + (step - bw) / 2
-        if not v:
-            out.append(f'<rect x="{bx:.1f}" y="{y + h - 2}" width="{bw:.1f}" height="2" rx="1" fill="{EDGE}"/>')
-            continue
-        bh = max(4, (h - 4) * (v / top) ** .6)
-        col = GREEN if i >= streak_from else BLUE
-        out.append(f'<rect x="{bx + 1.5:.1f}" y="{y + h - bh + 1.5:.1f}" width="{bw:.1f}" height="{bh:.1f}" rx="1.5" fill="{col[2]}"/>'
-                   f'<rect class="col" style="animation-delay:{i * .02:.2f}s" x="{bx:.1f}" y="{y + h - bh:.1f}" width="{bw:.1f}" height="{bh:.1f}" rx="1.5" fill="{col[1]}"/>')
-    out.append(f'<text x="{x}" y="{y + h + 16}" font-family="{MONO}" font-size="10.5" fill="{TEXT_DIM}">-{n}d</text>'
-               f'<text x="{x + w}" y="{y + h + 16}" font-family="{MONO}" font-size="10.5" fill="{TEXT_DIM}" text-anchor="end">today</text>'
-               f'<text x="{x + w / 2}" y="{y + h + 16}" font-family="{MONO}" font-size="10.5" fill="{TEXT_DIM}" text-anchor="middle">'
-               f'<tspan fill="{GREEN[1]}">■</tspan> streak  <tspan fill="{BLUE[1]}">■</tspan> commits</text>')
-    return ''.join(out)
+def short(d, today):
+    """A date as "Nov 16", with the year only when it isn't this year."""
+    return f"{d:%b} {d.day}" + ('' if d.year == today.year else f" '{d:%y}")
+
+
+def fit(text, width, size):
+    """The font size (at most `size`) at which monospace `text` fits in `width`."""
+    return round(min(size, width / (max(len(text), 1) * .6)), 2)
 
 
 def streak(s):
+    """The streak as three raised stat cards: the current streak large across the top, the
+    longest streak and total contributions side by side under it. No chart."""
     W, H = 494, PANEL_H - DEPTH
+    today = s['today']
+    days = lambda n: 'day' if n == 1 else 'days'
 
-    def row(y, key, value, sub, col):
-        return (f'<text x="28" y="{y}" font-family="{MONO}" font-size="13" font-weight="700" fill="{TEXT_DIM}">{key}:</text>'
-                f'<text x="186" y="{y}" font-family="{MONO}" font-size="15" font-weight="800" fill="{col[1]}">{esc(value)}</text>'
-                f'<text x="{W - 28}" y="{y}" font-family="{MONO}" font-size="11" fill="{TEXT_DIM}" text-anchor="end">{esc(sub)}</text>')
+    def stat(x, y, w, h, label, value, unit, sub, col, size, sub_right=False):
+        unit_ = f'<tspan dx="10" font-size="{size * .42:.0f}" font-weight="700" fill="{TEXT_SOFT}">{esc(unit)}</tspan>' if unit else ''
+        sub_ = (f'<text x="{w - 18}" y="{h - 22}" font-family="{MONO}" font-size="{fit(sub, w * .42, 16):g}" fill="{TEXT_SOFT}" text-anchor="end">{esc(sub)}</text>'
+                if sub_right else
+                f'<text x="18" y="{h - 18}" font-family="{MONO}" font-size="{fit(sub, w - 36, 16):g}" fill="{TEXT_SOFT}">{esc(sub)}</text>')
+        return (f'<g transform="translate({x} {y})">{raised(0, 0, w, h, 12, CARD, LIP, 5, EDGE)}'
+                f'<rect x="0" y="16" width="4" height="22" rx="2" fill="{col[1]}"/>'
+                f'<text x="18" y="33" font-family="{MONO}" font-size="16" font-weight="700" fill="{col[1]}">{esc(label)}</text>'
+                f'<text x="16" y="{(h - 22) if sub_right else (h - 46)}" font-family="{MONO}" font-size="{size}" font-weight="800" fill="{col[0]}">{esc(value)}{unit_}</text>'
+                f'{sub_}</g>')
 
-    plural = lambda n: f"{n} day" + ("" if n == 1 else "s")
-    body = f'''{window(W, H, '~/streak — git log', 'st', glow=(GREEN[2], .5, .3, .6))}
-{command('git log --streak', W / 2, 84, 20)}
-{row(126, 'current', plural(s['current']), span(s['current_range']), GREEN)}
-{row(152, 'longest', plural(s['longest']), span(s['longest_range']), PURPLE)}
-{row(178, 'total', fmt(s['total']), f"since {s['joined']:%b} {s['joined'].year}", CYAN)}
-{sparkline(s, 36, 210, W - 72, 58)}'''
-    style = '''
-.col { animation: col 6s ease-in-out infinite; }
-@keyframes col { 0%, 90%, 100% { opacity: 1; } 95% { opacity: .55; } }
-'''
-    label = f"Contribution streak: {s['current']} days now, best {s['longest']} days, {s['total']:,} contributions in total."
-    return body, style, label
+    if s['current']:
+        a, _ = s['current_range']
+        hero = stat(20, 54, W - 40, 112, 'Current streak', str(s['current']), 'day streak',
+                    f'since {short(a, today)}', CYAN, 60, True)
+    else:
+        last = s['last_active']
+        hero = stat(20, 54, W - 40, 112, 'No streak right now', '0', 'day streak',
+                    f'last active {short(last, today)}' if last else 'start one today', CYAN, 60, True)
+    la, lb = s['longest_range'] if s['longest_range'][0] else (None, None)
+    half = (W - 40 - 12) / 2
+    longest = stat(20, 180, half, 120, 'Longest streak', str(s['longest']), days(s['longest']),
+                   (short(la, today) if la == lb else f'{short(la, today)} – {short(lb, today)}') if la else '–', PURPLE, 40)
+    total = stat(20 + half + 12, 180, half, 120, 'Contributions', fmt(s['total']), '', f"since {s['joined']:%b %Y}", BLUE, 40)
+    body = f'''{window(W, H, '~/streak — git log --streak', 'st', glow=(CYAN[2], .2, .25, .6))}
+{hero}{longest}{total}'''
+    label = (f"Contribution streak: {s['current']} days now"
+             + (f" (since {short(s['current_range'][0], today)})" if s['current'] else '')
+             + f", longest {s['longest']} days, {s['total']:,} contributions in total.")
+    return body, '', label
 
 
 def meter(x, y, pct, color, cells=22):
@@ -329,7 +312,7 @@ def main():
     for name, text in cards.items():
         with open(os.path.join(out, name), 'w', encoding='utf-8', newline='\n') as f:
             f.write(text)
-    print({k: v for k, v in s.items() if k not in ('months', 'langs', 'recent')})
+    print({k: v for k, v in s.items() if k != 'langs'})
 
 
 if __name__ == '__main__':
