@@ -9,7 +9,7 @@ Usage: python .github/scripts/draw_assets.py
 import os
 import re
 
-from theme import (AMBER, BLINK, BLUE, CARD, CARD_TOP, CYAN, EDGE, GREEN, LIP, MONO, NARROW, PAD, PANEL_TOP, PURPLE, RED, SLOT,
+from theme import (AMBER, BLUE, CARD, CARD_TOP, CYAN, EDGE, GREEN, LIP, MONO, NARROW, PAD, PANEL_TOP, PURPLE, RED, SLOT,
                    STEEL, STEEL_LIGHT, TEXT, TEXT_DIM, TEXT_SOFT, Iso, badge, chip_label, command, esc, extruded, glyph, logo, plate,
                    raised, shadow_filter, svg, title, window)
 
@@ -156,7 +156,7 @@ def hero():
   <radialGradient id="screenglow"><stop offset="0" stop-color="{BLUE[1]}" stop-opacity=".3"/><stop offset="1" stop-color="{BLUE[1]}" stop-opacity="0"/></radialGradient>
 </defs>'''
 
-    style = BLINK + f'''
+    style = f'''
 .desk {{ animation: bob 6s ease-in-out infinite; }}
 .shade {{ animation: shade 6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }}
 @keyframes bob {{ 50% {{ transform: translateY(-7px); }} }}
@@ -220,8 +220,7 @@ def button(kind, i):
         icon = glyph('globe', x + 25, y + 52, 22, '#10131c', 2.3)
     else:
         icon = logo({'email': 'gmail'}.get(kind, kind), x + 25, y + 52, 22)
-    cursor = f'<tspan class="cursor" fill="{TEXT}">▌</tspan>' if len(handle) < 21 else ''
-    style = BLINK + f'''
+    style = f'''
 .pop {{ animation: pop 6s ease-in-out infinite; animation-delay: {-delay}s; }}
 @keyframes pop {{ 0%, 8%, 100% {{ transform: translateY(0); }} 4% {{ transform: translateY(-4px); }} }}
 .go {{ animation: go 2.4s ease-in-out infinite; animation-delay: {-delay}s; }}
@@ -233,7 +232,7 @@ def button(kind, i):
 <g class="pop">{raised(x + 16, y + 43, 40, 40, 10, col[1], col[2], 4, col[0])}{icon}</g>
 <text x="{x + 70}" y="{y + 56}" font-family="{MONO}" font-size="11.5" font-weight="700"><tspan fill="{GREEN[1]}">$</tspan><tspan fill="{TEXT_DIM}"> {verb}</tspan></text>
 <text x="{x + 70}" y="{y + 77}" font-family="{MONO}" font-size="17" font-weight="800" fill="{TEXT}">{esc(name)}</text>
-<text x="{x + 70 if len(handle) < 21 else x + 16}" y="{y + 100}" font-family="{MONO}" font-size="11" fill="{col[1]}">{esc(handle)}{cursor}</text>'''
+<text x="{x + 70 if len(handle) < 21 else x + 16}" y="{y + 100}" font-family="{MONO}" font-size="11" fill="{col[1]}">{esc(handle)}</text>'''
     return svg(W, H, f'{name.capitalize()}: {handle}', body, style)
 
 
@@ -275,7 +274,7 @@ def about():
   <text x="{cx:.0f}" y="{304 + len(lines) * 22 + 2}" font-family="{MONO}" font-size="11.5" fill="{TEXT_DIM}" text-anchor="middle">{esc(sub)}</text>
 </g>''')
 
-    style = BLINK + '''
+    style = '''
 .obj { animation: lift 4.5s ease-in-out infinite; }
 .o1 { animation-delay: -1.1s; } .o2 { animation-delay: -2.2s; } .o3 { animation-delay: -3.3s; }
 @keyframes lift { 50% { transform: translate(0, -6px); } }
@@ -343,7 +342,7 @@ def projects_title():
     """The projects heading on its own, so each project card below it can be a link."""
     W = 1000
     p, h = plate('ls ~/projects', W / 2)
-    return svg(W, h + 6 + PAD, 'Featured projects', p, BLINK)
+    return svg(W, h + 6 + PAD, 'Featured projects', p)
 
 
 def project_card(i):
@@ -427,7 +426,7 @@ def stack():
             n += 1
         y += sh + 6 + 30
     H = y - 30 + PAD
-    style = BLINK + '''
+    style = '''
 .item { animation: hover 3.6s ease-in-out infinite; }
 @keyframes hover { 50% { transform: translateY(-3px); } }
 '''
@@ -448,7 +447,7 @@ def divider():
     x0 = W * (1 - NARROW) / 2
     rule = f'stroke="{BLUE[2]}" stroke-opacity=".6" stroke-width="2" stroke-dasharray="8 6"'
     body = (f'<path d="M{x0:g} 10 H{W / 2 - 24:g} M{W / 2 + 24:g} 10 H{W - x0:g}" {rule}/>'
-            f'<text x="{W / 2:g}" y="15" font-family="{MONO}" font-size="14" font-weight="800" fill="{GREEN[1]}" fill-opacity=".8" text-anchor="middle">$_</text>')
+            f'<text x="{W / 2:g}" y="15" font-family="{MONO}" font-size="14" font-weight="800" fill="{GREEN[1]}" fill-opacity=".8" text-anchor="middle">$</text>')
     return svg(W, H, '', body)
 
 
@@ -465,7 +464,7 @@ def footer():
     halo = (f'<ellipse class="halo" cx="{lx:.0f}" cy="{ly - 20:.0f}" rx="120" ry="80" fill="url(#halo)"/>'
             f'<ellipse class="halo h2" cx="{rx_:.0f}" cy="{ry_ - 20:.0f}" rx="120" ry="80" fill="url(#halo)"/>')
     cx = W / 2
-    style = BLINK + '''
+    style = '''
 .lift { animation: lift 5s ease-in-out infinite; }
 .l2 { animation-delay: -2.5s; }
 @keyframes lift { 50% { transform: translateY(-5px); } }
@@ -482,9 +481,9 @@ def footer():
 <g filter="url(#soft)"><g class="lift">{left}</g><g class="lift l2">{right}</g></g>
 <text x="{cx + 10}" y="80" font-family="{MONO}" font-size="13" font-weight="800" fill="{GREEN[1]}" text-anchor="middle">all checks passed <tspan fill="{TEXT_DIM}">[ok]</tspan></text>
 <path d="M{cx - 96} 75 l4 4 l8 -9" fill="none" stroke="{GREEN[1]}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-{command('echo "thanks for stopping by!"', cx, 124, 25, cursor=False)}
+{command('echo "thanks for stopping by!"', cx, 124, 25)}
 <text x="{cx}" y="160" font-family="{MONO}" font-size="15" font-weight="600" fill="{TEXT_SOFT}" text-anchor="middle"># visit my site to see what I'm building lately</text>
-<text x="{cx}" y="196" font-family="{MONO}" font-size="15" font-weight="700" text-anchor="middle"><tspan fill="{GREEN[1]}">$</tspan><tspan fill="{TEXT}"> open </tspan><tspan fill="{CYAN[1]}">https://itsme.dfanso.dev</tspan><tspan class="cursor" fill="{TEXT}"> ▌</tspan></text>
+<text x="{cx}" y="196" font-family="{MONO}" font-size="15" font-weight="700" text-anchor="middle"><tspan fill="{GREEN[1]}">$</tspan><tspan fill="{TEXT}"> open </tspan><tspan fill="{CYAN[1]}">https://itsme.dfanso.dev</tspan></text>
 <text x="{cx}" y="236" font-family="{MONO}" font-size="12" fill="{TEXT_DIM}" text-anchor="middle">logout · exit 0</text>
 <text x="{lx:.0f}" y="252" font-family="{MONO}" font-size="12" font-weight="800" fill="{GREEN[1]}" text-anchor="middle">[deploy]</text>
 <text x="{rx_:.0f}" y="252" font-family="{MONO}" font-size="12" font-weight="800" fill="{TEXT_DIM}" text-anchor="middle">[rollback?]</text>'''

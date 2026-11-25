@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="250" height="134" viewBox="0 0 250 134" role="img" aria-label="Email: leogavin123@outlook.com">
 <title>Email: leogavin123@outlook.com</title>
-<style>.cursor { animation: cursor 1.1s steps(1) infinite; } @keyframes cursor { 50% { opacity: 0; } }
+<style>
 .pop { animation: pop 6s ease-in-out infinite; animation-delay: -1.2000000000000002s; }
 @keyframes pop { 0%, 8%, 100% { transform: translateY(0); } 4% { transform: translateY(-4px); } }
 .go { animation: go 2.4s ease-in-out infinite; animation-delay: -1.2000000000000002s; }
