@@ -1,46 +1,50 @@
 """Shared look for the profile README's artwork (draw_assets.py) and live
-stat cards (stat_cards.py): a dark arcade theme with soft, clay-like 3D
-shapes in pastel colours, drawn in plain SVG with CSS animation.
+stat cards (stat_cards.py): a dark editor / terminal theme with real depth.
+Every block is a window that stands off the page (an extruded lip, a soft
+shadow, a title bar with the three dots), set in a monospace face, with
+isometric 3D for the illustrations. Plain SVG with CSS animation.
 
-Everything is inlined (logos included) because GitHub shows these files as
-images, and an SVG loaded as an image can't fetch anything.
+Everything is inlined (logos and title outlines included) because GitHub shows
+these files as images, and an SVG loaded as an image can't fetch anything.
 """
 import base64
 import math
 import os
-import random
 import re
 from html import escape as esc
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ICONS = os.path.join(HERE, 'icons')
 
-SANS = "'SF Pro Rounded', ui-rounded, 'Nunito', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif"
-MONO = "ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', Consolas, 'Liberation Mono', monospace"
+MONO = "'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', 'Fira Code', Consolas, 'Liberation Mono', monospace"
+# Kept for callers that want a proportional face; the theme itself is monospace throughout.
+SANS = MONO
 
-# Dark clay surfaces, tinted towards a night-time blue.
-NIGHT = '#0e121a'       # page behind the panels
-PANEL = '#151b26'       # section panels
-PANEL_TOP = '#1b2231'
-EDGE = '#273044'        # panel outline
-CARD = '#1e2536'        # raised cards on a panel
-CARD_TOP = '#252d42'
-LIP = '#090c12'         # the dark underside that makes cards look raised
-SLOT = '#111620'        # sunken wells (bars, inventory slots)
+# Editor surfaces (a muted Tokyo Night). Every block carries its own background, so it reads the
+# same on GitHub's light and dark pages.
+NIGHT = '#16161e'       # deepest background
+PANEL = '#1a1b26'       # window body
+PANEL_TOP = '#1f2133'
+BAR = '#24283b'         # title bars
+EDGE = '#2f354d'        # window outline
+CARD = '#1f2335'        # raised cards inside a window
+CARD_TOP = '#292e42'
+LIP = '#0b0c12'         # the dark extrusion under a window or card
+SLOT = '#14151f'        # sunken wells (bars, slots)
 
-TEXT = '#f2f1ec'
-TEXT_SOFT = '#a2abc0'
-TEXT_DIM = '#677089'
+TEXT = '#c8d3f5'
+TEXT_SOFT = '#a9b1d6'
+TEXT_DIM = '#737aa2'
 
-# Pastel clay: (top, left face, right face).
-PEACH = ('#ffd2c2', '#f5a98f', '#e48c72')
-SAGE = ('#d0e8cc', '#a9d2a3', '#8cbd86')
-LILAC = ('#d8dcfb', '#b8bff0', '#9aa3de')
-BUTTER = ('#fbe9ae', '#f3d483', '#e3c068')
-SKY = ('#cdeef0', '#9fd6db', '#7fbfc6')
-ROSE = ('#fbd3dd', '#f3b3c3', '#e297aa')
-SLATE = ('#434d66', '#363e55', '#2c3346')
-SLATE_LIGHT = ('#58627f', '#48516b', '#3d455c')
+# Accents: (light face, main, dark face), so they can be used on 3D boxes too.
+GREEN = ('#c3e88d', '#9ece6a', '#6f9b45')
+CYAN = ('#b4f9f8', '#7dcfff', '#4f9fcf')
+BLUE = ('#b4c8ff', '#7aa2f7', '#5072c2')
+PURPLE = ('#dcc6ff', '#bb9af7', '#8f6fcf')
+AMBER = ('#ffdca8', '#e0af68', '#b0843f')
+RED = ('#ffb3c0', '#f7768e', '#c4506a')
+STEEL = ('#4a5272', '#3a405c', '#2d3249')        # isometric hardware
+STEEL_LIGHT = ('#5d6688', '#4a5272', '#3d4462')
 
 C30, S30 = math.cos(math.pi / 6), 0.5
 
@@ -49,10 +53,14 @@ C30, S30 = math.cos(math.pi / 6), 0.5
 PAD = 14
 
 # The README shows every block at this share of its width (the four link tiles at a quarter of it
-# each), so the blocks span exactly the dividers' dotted line; the dividers stay at full width.
+# each), so the blocks span exactly the dividers' line; the dividers stay at full width.
 NARROW = 0.88
 
+# How far a window stands off the page.
+DEPTH = 8
+
 REDUCED = '@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }'
+BLINK = '.cursor { animation: cursor 1.1s steps(1) infinite; } @keyframes cursor { 50% { opacity: 0; } }'
 
 
 def svg(w, h, label, body, style=''):
@@ -63,98 +71,70 @@ def svg(w, h, label, body, style=''):
     )
 
 
-def panel(w, h, glow=None, uid='p'):
-    """A dark rounded panel with a soft top light, so each section reads the same on light and dark GitHub."""
-    g = ''
-    if glow:
-        color, cx, cy, r = glow
-        g = (f'<radialGradient id="{uid}glow" cx="{cx}" cy="{cy}" r="{r}"><stop offset="0" stop-color="{color}" stop-opacity=".22"/>'
-             f'<stop offset="1" stop-color="{color}" stop-opacity="0"/></radialGradient>')
+def shadow_filter(fid, dy=10, blur=12, opacity=0.5, color='#05060a'):
     return (
-        f'<defs><filter id="{uid}sh" x="-5%" y="-5%" width="110%" height="120%"><feDropShadow dx="0" dy="6" stdDeviation="5" '
-        f'flood-color="#05040a" flood-opacity=".35"/></filter>'
-        f'<linearGradient id="{uid}bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{PANEL_TOP}"/>'
-        f'<stop offset="1" stop-color="{PANEL}"/></linearGradient>{g}'
-        f'<pattern id="{uid}dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.1" fill="#fff" opacity=".045"/></pattern></defs>'
-        f'<rect width="{w}" height="{h}" rx="30" fill="{PANEL}" filter="url(#{uid}sh)"/>'
-        f'<rect width="{w}" height="{h}" rx="30" fill="url(#{uid}bg)"/>'
-        f'<rect width="{w}" height="{h}" rx="30" fill="url(#{uid}dots)"/>'
-        + (f'<rect width="{w}" height="{h}" rx="30" fill="url(#{uid}glow)"/>' if glow else '')
-        + f'<rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="29" fill="none" stroke="{EDGE}" stroke-width="2"/>'
-        f'<path d="M30 2.5 H{w - 30}" stroke="#fff" stroke-opacity=".07" stroke-width="2" stroke-linecap="round"/>'
+        f'<filter id="{fid}" x="-30%" y="-30%" width="160%" height="180%">'
+        f'<feDropShadow dx="0" dy="{dy}" stdDeviation="{blur}" flood-color="{color}" flood-opacity="{opacity}"/></filter>'
     )
 
 
-def header(title, kicker, color, right='', x=50, y=50):
-    """Section title: a small arcade tag, then the title, with optional status text on the right."""
-    tag_w = 26 + len(kicker) * 7.4
-    out = (f'<g transform="translate({x} {y})">'
-           f'<rect y="3" width="{tag_w:.0f}" height="24" rx="12" fill="{color[2]}" opacity=".35"/>'
-           f'<rect width="{tag_w:.0f}" height="24" rx="12" fill="{color[2]}" opacity=".22"/>'
-           f'<rect x=".75" y=".75" width="{tag_w - 1.5:.0f}" height="22.5" rx="11.25" fill="none" stroke="{color[1]}" stroke-opacity=".55" stroke-width="1.5"/>'
-           f'<text x="{tag_w / 2:.0f}" y="16.5" font-family="{MONO}" font-size="11.5" font-weight="700" letter-spacing=".5" fill="{color[0]}" text-anchor="middle">{esc(kicker)}</text>'
-           f'<text y="62" font-family="{SANS}" font-size="30" font-weight="800" fill="{TEXT}">{esc(title)}</text></g>')
-    if right:
-        out += (f'<text x="{1000 - x}" y="{y + 16.5}" font-family="{MONO}" font-size="12" font-weight="700" letter-spacing="1.4" '
-                f'fill="{TEXT_DIM}" text-anchor="end">{right}</text>')
-    return out
+def dots(x, y, r=5.5, gap=18):
+    """The three window buttons."""
+    return ''.join(f'<circle cx="{x + i * gap}" cy="{y}" r="{r}" fill="{c}"/>' for i, c in enumerate(('#f7768e', '#e0af68', '#9ece6a')))
 
 
-def plate(title, kicker, color, x=0, y=0):
-    """A section title on its own small raised plate, for sections drawn without a panel:
-    it stays readable on GitHub's light and dark pages. Returns (svg, width)."""
-    tag_w = 26 + len(kicker) * 7.4
-    w = round(tag_w + 44 + len(title) * 13.2)
-    return (f'<g transform="translate({x} {y})">{raised(0, 0, w, 56, 20)}'
-            f'<rect x="14" y="16" width="{tag_w:.0f}" height="24" rx="12" fill="{color[2]}" fill-opacity=".28" stroke="{color[1]}" stroke-opacity=".55" stroke-width="1.5"/>'
-            f'<text x="{14 + tag_w / 2:.0f}" y="32.5" font-family="{MONO}" font-size="11.5" font-weight="700" letter-spacing=".5" fill="{color[0]}" text-anchor="middle">{esc(kicker)}</text>'
-            f'<text x="{tag_w + 30:.0f}" y="36.5" font-family="{SANS}" font-size="24" font-weight="800" fill="{TEXT}">{esc(title)}</text></g>'), w
+def window(w, h, title='', uid='w', bar=40, x=0, y=0, rx=16, glow=None, depth=DEPTH):
+    """A terminal or editor window that stands off the page: an extruded lip under it, a title bar
+    with the three dots and a centred title, a faint grid on the body. The window's own height is h
+    (lip excluded), so leave depth + PAD below it."""
+    g = ''
+    if glow:
+        color, cx, cy, r = glow
+        g = (f'<radialGradient id="{uid}glow" cx="{cx}" cy="{cy}" r="{r}"><stop offset="0" stop-color="{color}" stop-opacity=".16"/>'
+             f'<stop offset="1" stop-color="{color}" stop-opacity="0"/></radialGradient>')
+    return (
+        f'<defs><filter id="{uid}sh" x="-5%" y="-5%" width="110%" height="130%"><feDropShadow dx="0" dy="{depth + 4}" stdDeviation="7" '
+        f'flood-color="#05060a" flood-opacity=".4"/></filter>'
+        f'<linearGradient id="{uid}bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{PANEL_TOP}"/><stop offset="1" stop-color="{PANEL}"/></linearGradient>{g}'
+        f'<pattern id="{uid}grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0 H0 V24" fill="none" stroke="#fff" stroke-opacity=".025"/></pattern>'
+        f'<clipPath id="{uid}clip"><rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}"/></clipPath></defs>'
+        f'<g filter="url(#{uid}sh)"><rect x="{x}" y="{y + depth}" width="{w}" height="{h}" rx="{rx}" fill="{LIP}"/>'
+        f'<rect x="{x}" y="{y + depth * .5}" width="{w}" height="{h}" rx="{rx}" fill="#11121a"/></g>'
+        f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="url(#{uid}bg)"/>'
+        f'<g clip-path="url(#{uid}clip)"><rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#{uid}grid)"/>'
+        + (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#{uid}glow)"/>' if glow else '')
+        + (f'<rect x="{x}" y="{y}" width="{w}" height="{bar}" fill="{BAR}"/><path d="M{x} {y + bar} H{x + w}" stroke="{EDGE}" stroke-width="1.5"/>'
+           f'{dots(x + 22, y + bar / 2)}'
+           + (f'<text x="{x + w / 2}" y="{y + bar / 2 + 4.5}" font-family="{MONO}" font-size="12.5" font-weight="600" fill="{TEXT_DIM}" text-anchor="middle">{esc(title)}</text>' if title else '')
+           if bar else '')
+        + f'</g><rect x="{x + .75}" y="{y + .75}" width="{w - 1.5}" height="{h - 1.5}" rx="{rx - .75}" fill="none" stroke="{EDGE}" stroke-width="1.5"/>'
+        f'<path d="M{x + rx} {y + 1.5} H{x + w - rx}" stroke="#fff" stroke-opacity=".07" stroke-width="1.5" stroke-linecap="round"/>'
+    )
 
 
-def header_float(text, kicker, color, cx, y=0, size=28):
-    """header_center for sections with no panel behind them: a solid tag, and the title outlined in
-    the dark lip colour so it reads on GitHub's light page as well as the dark one."""
-    tag_w = 26 + len(kicker) * 7.4
-    return (f'<g transform="translate({cx - tag_w / 2:.1f} {y})">'
-            f'<rect y="3" width="{tag_w:.0f}" height="24" rx="12" fill="{LIP}"/>'
-            f'<rect width="{tag_w:.0f}" height="24" rx="12" fill="{CARD}"/>'
-            f'<rect x=".75" y=".75" width="{tag_w - 1.5:.0f}" height="22.5" rx="11.25" fill="none" stroke="{color[1]}" stroke-opacity=".55" stroke-width="1.5"/>'
-            f'<text x="{tag_w / 2:.0f}" y="16.5" font-family="{MONO}" font-size="11.5" font-weight="700" letter-spacing=".5" fill="{color[0]}" text-anchor="middle">{esc(kicker)}</text></g>'
-            + title(text, cx, y + 30 + size, size, anchor='middle',
-                    extra=f' stroke="{LIP}" stroke-width="6" stroke-linejoin="round" paint-order="stroke"'))
+def raised(x, y, w, h, rx=14, top=CARD, lip=LIP, depth=6, rim=CARD_TOP):
+    """A card that sits up off its window: a dark lip below, a lighter rim along the edge."""
+    return (f'<rect x="{x}" y="{y + depth}" width="{w}" height="{h}" rx="{rx}" fill="{lip}"/>'
+            f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{top}"/>'
+            f'<rect x="{x + .75}" y="{y + .75}" width="{w - 1.5}" height="{h - 1.5}" rx="{rx - .75}" fill="none" stroke="{rim}" stroke-width="1.5"/>')
 
 
-def chip_label(text, color, x, y):
-    """A small solid label (a dot and a word) that reads on any background. Returns (svg, width)."""
-    w = round(36 + len(text) * 7.4)
-    return (f'<g transform="translate({x} {y})"><rect y="3" width="{w}" height="26" rx="13" fill="{LIP}"/>'
-            f'<rect width="{w}" height="26" rx="13" fill="{CARD}"/>'
-            f'<circle cx="15" cy="13" r="4" fill="{color[1]}"/>'
-            f'<text x="26" y="17.5" font-family="{MONO}" font-size="11.5" font-weight="800" letter-spacing=".5" fill="{color[0]}">{esc(text)}</text></g>'), w
-
-
-def header_center(text, kicker, color, cx, y=36, sub='', size=28):
-    """A section title centred on cx: the arcade tag, the title under it, and an optional dim line."""
-    tag_w = 26 + len(kicker) * 7.4
-    out = (f'<g transform="translate({cx - tag_w / 2:.1f} {y})">'
-           f'<rect y="3" width="{tag_w:.0f}" height="24" rx="12" fill="{color[2]}" opacity=".35"/>'
-           f'<rect width="{tag_w:.0f}" height="24" rx="12" fill="{color[2]}" opacity=".22"/>'
-           f'<rect x=".75" y=".75" width="{tag_w - 1.5:.0f}" height="22.5" rx="11.25" fill="none" stroke="{color[1]}" stroke-opacity=".55" stroke-width="1.5"/>'
-           f'<text x="{tag_w / 2:.0f}" y="16.5" font-family="{MONO}" font-size="11.5" font-weight="700" letter-spacing=".5" fill="{color[0]}" text-anchor="middle">{esc(kicker)}</text></g>'
-           + title(text, cx, y + 30 + size, size, anchor='middle'))
-    if sub:
-        out += (f'<text x="{cx}" y="{y + 54 + size}" font-family="{MONO}" font-size="12" font-weight="700" letter-spacing=".5" '
-                f'fill="{TEXT_DIM}" text-anchor="middle">{esc(sub)}</text>')
-    return out
+def badge(text, color, x, y, anchor='start', size=11.5):
+    """A small bracketed status tag, like [author] or [ok]. Returns (svg, width)."""
+    w = round(20 + len(text) * size * .6)
+    x0 = x - w / 2 if anchor == 'middle' else x
+    return (f'<g transform="translate({x0:.1f} {y})"><rect width="{w}" height="22" rx="6" fill="{color[2]}" fill-opacity=".18" '
+            f'stroke="{color[1]}" stroke-opacity=".55" stroke-width="1.2"/>'
+            f'<text x="{w / 2:.1f}" y="15" font-family="{MONO}" font-size="{size}" font-weight="700" fill="{color[0]}" text-anchor="middle">{esc(text)}</text></g>'), w
 
 
 _TITLES = None
 
 
 def title(text, x, y, size, fill=TEXT, anchor='start', extra=''):
-    """A title set in Fredoka (SIL Open Font License), drawn from the outlines in titles.json
-    (made by make_titles.py), so no font has to load. y is the baseline. Falls back to plain text
-    for a title that hasn't been outlined yet."""
+    """A heading set in JetBrains Mono, drawn from the outlines in titles.json (made by
+    make_titles.py), so no font has to load. y is the baseline. Falls back to plain text for a
+    heading that hasn't been outlined yet."""
     global _TITLES
     if _TITLES is None:
         import json
@@ -162,57 +142,53 @@ def title(text, x, y, size, fill=TEXT, anchor='start', extra=''):
             _TITLES = json.load(f)
     t = _TITLES.get(text)
     if t is None:
-        a = {'start': 'start', 'middle': 'middle', 'end': 'end'}[anchor]
-        return (f'<text x="{x}" y="{y}" font-family="{SANS}" font-size="{size}" font-weight="800" fill="{fill}" '
-                f'text-anchor="{a}"{extra}>{esc(text)}</text>')
+        return (f'<text x="{x}" y="{y}" font-family="{MONO}" font-size="{size}" font-weight="800" fill="{fill}" '
+                f'text-anchor="{anchor}"{extra}>{esc(text)}</text>')
     k = size / t['upm']
     w = t['width'] * k
     x0 = x - (w / 2 if anchor == 'middle' else w if anchor == 'end' else 0)
-    # Strokes are drawn in font units here, so scale any stroke width up to match.
     extra = re.sub(r'stroke-width="([\d.]+)"', lambda m: f'stroke-width="{float(m.group(1)) / k:.0f}"', extra)
     return f'<path transform="translate({x0:.1f} {y}) scale({k:.4f})" fill="{fill}"{extra} d="{t["d"]}"/>'
 
 
-def shadow_filter(fid, dy=10, blur=12, opacity=0.5, color='#05040a'):
-    return (
-        f'<filter id="{fid}" x="-30%" y="-30%" width="160%" height="180%">'
-        f'<feDropShadow dx="0" dy="{dy}" stdDeviation="{blur}" flood-color="{color}" flood-opacity="{opacity}"/></filter>'
-    )
+def title_width(text, size):
+    """How wide title() draws `text` at `size` (an estimate for plain-text fallbacks)."""
+    global _TITLES
+    if _TITLES is None:
+        title('', 0, 0, 1)
+    t = _TITLES.get(text)
+    return t['width'] * size / t['upm'] if t else len(text) * size * .6
 
 
-def glow_filter(fid, blur=8):
-    return (f'<filter id="{fid}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="{blur}" result="b"/>'
-            f'<feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>')
+def command(cmd, cx, y, size=26, color=GREEN, outline=None, cursor=True):
+    """A section heading as a shell command, centred on cx: a green "$ " prompt, then the command.
+    `outline` draws a dark stroke under it so it also reads where no window sits behind it."""
+    extra = f' stroke="{outline}" stroke-width="6" stroke-linejoin="round" paint-order="stroke"' if outline else ''
+    pw = title_width('$', size) + size * .6
+    w = pw + title_width(cmd, size)
+    x0 = cx - w / 2
+    return (title('$', x0, y, size, color[1], extra=extra) + title(cmd, x0 + pw, y, size, TEXT, extra=extra)
+            + (f'<rect class="cursor" x="{x0 + w + size * .25:.1f}" y="{y - size * .78:.1f}" width="{size * .5:.1f}" height="{size * .9:.1f}" fill="{color[1]}" opacity=".85"/>' if cursor else ''))
 
 
-def raised(x, y, w, h, rx=20, top=CARD, lip=LIP, depth=6, rim=CARD_TOP):
-    """A card that sits up off the panel: dark lip below, a lighter rim along the top edge."""
-    return (f'<rect x="{x}" y="{y + depth}" width="{w}" height="{h}" rx="{rx}" fill="{lip}"/>'
-            f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="{top}"/>'
-            f'<rect x="{x + .75}" y="{y + .75}" width="{w - 1.5}" height="{h - 1.5}" rx="{rx - .75}" fill="none" stroke="{rim}" stroke-width="1.5"/>')
+def plate(cmd, cx, y=0, size=24, color=GREEN):
+    """A section heading for blocks with no window behind them: the command on its own small raised
+    terminal strip, so it stays readable on GitHub's light page. Returns (svg, height)."""
+    pw = title_width('$', size) + size * .6
+    w = round(pw + title_width(cmd, size) + size * .9 + 72)
+    h = 52
+    x0 = cx - w / 2
+    return (f'<g>{raised(x0, y, w, h, 12, PANEL_TOP, LIP, 6, EDGE)}'
+            f'{command(cmd, cx - size * .15, y + 35, size, color)}</g>'), h
 
 
-def orb(cx, cy, r, col, uid):
-    """A soft clay ball with a highlight."""
-    return (f'<defs><radialGradient id="{uid}" cx=".35" cy=".3" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".9"/>'
-            f'<stop offset=".25" stop-color="{col[0]}"/><stop offset=".7" stop-color="{col[1]}"/><stop offset="1" stop-color="{col[2]}"/></radialGradient></defs>'
-            f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="url(#{uid})"/>')
-
-
-def stars(w, h, n, seed=7, cls='tw'):
-    """Twinkling specks for a night-sky background."""
-    rnd = random.Random(seed)
-    out = []
-    for i in range(n):
-        x, y = rnd.uniform(14, w - 14), rnd.uniform(14, h - 14)
-        r = rnd.choice([0.9, 1.1, 1.3, 1.8])
-        c = rnd.choice(['#ffffff', LILAC[0], SKY[0], BUTTER[0], ROSE[0]])
-        out.append(f'<circle class="{cls}" style="animation-delay:{-rnd.uniform(0, 4):.2f}s;animation-duration:{rnd.uniform(2.5, 5):.1f}s" '
-                   f'cx="{x:.0f}" cy="{y:.0f}" r="{r}" fill="{c}" opacity=".7"/>')
-    return ''.join(out)
-
-
-TWINKLE = '.tw { animation: tw 4s ease-in-out infinite; } @keyframes tw { 50% { opacity: .15; } }'
+def chip_label(text, color, x, y):
+    """A small solid label (a dot and a word) that reads on any background. Returns (svg, width)."""
+    w = round(32 + len(text) * 7.1)
+    return (f'<g transform="translate({x} {y})"><rect y="3" width="{w}" height="26" rx="7" fill="{LIP}"/>'
+            f'<rect width="{w}" height="26" rx="7" fill="{CARD}" stroke="{EDGE}" stroke-width="1.2"/>'
+            f'<circle cx="14" cy="13" r="4" fill="{color[1]}"/>'
+            f'<text x="25" y="17.5" font-family="{MONO}" font-size="11.5" font-weight="700" fill="{color[0]}">{esc(text)}</text></g>'), w
 
 
 class Iso:
@@ -226,8 +202,8 @@ class Iso:
 
     def poly(self, pts, fill, extra=''):
         d = 'M' + ' L'.join(f'{a:.1f} {b:.1f}' for a, b in pts) + ' Z'
-        # A stroke in the face's own colour rounds the corners, like clay.
-        return f'<path d="{d}" fill="{fill}" stroke="{fill}" stroke-width="5" stroke-linejoin="round"{extra}/>'
+        # A stroke in the face's own colour softens the corners slightly.
+        return f'<path d="{d}" fill="{fill}" stroke="{fill}" stroke-width="2.5" stroke-linejoin="round"{extra}/>'
 
     def box(self, x, y, z, w, d, h, col):
         top, left, right = col
@@ -248,6 +224,11 @@ class Iso:
         ex, ey = self.p(x, y, z)
         return f'matrix({C30:.4f} {S30} 0 1 {ex:.1f} {ey:.1f})'
 
+    def side_face(self, x, y, z):
+        """Draws onto the face that looks down-right (the plane x = const), u running along y."""
+        ex, ey = self.p(x, y, z)
+        return f'matrix({-C30:.4f} {S30} 0 1 {ex:.1f} {ey:.1f})'
+
     def cylinder(self, x, y, z, r, h, col):
         top, side, _ = col
         cx, cy = self.p(x, y, z)
@@ -258,13 +239,11 @@ class Iso:
         )
 
 
-def pixels(rows, size, colors, x0=0, y0=0):
-    out = []
-    for j, row in enumerate(rows):
-        for i, ch in enumerate(row):
-            if ch in colors:
-                out.append(f'<rect x="{x0 + i * size}" y="{y0 + j * size}" width="{size}" height="{size}" fill="{colors[ch]}"/>')
-    return ''.join(out)
+def extruded(text, x, y, size, col, depth=4, anchor='start'):
+    """A heading with a stepped 3D extrusion under it (darker copies), from the title outlines."""
+    layers = ''.join(title(text, x, y + d, size, c, anchor) for d, c in
+                     [(depth + 2, LIP), (depth, col[2]), (depth * .5, col[1])])
+    return layers + title(text, x, y, size, col[0], anchor)
 
 
 # ───────────────────────────── logos & glyphs ─────────────────────────────

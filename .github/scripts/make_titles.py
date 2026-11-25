@@ -1,10 +1,10 @@
-"""Turns the README's titles into vector outlines (titles.json), set in Fredoka
-(https://github.com/google/fonts/tree/main/ofl/fredoka, SIL Open Font License 1.1).
+"""Turns the README's titles into vector outlines (titles.json), set in JetBrains Mono
+(https://github.com/JetBrains/JetBrainsMono, SIL Open Font License 1.1).
 Only these words are stored, as artwork; the font file is not in this repo.
 theme.title() draws them.
 
 Needs fontTools. Run it after changing TITLES, with the variable font from the link above:
-    python .github/scripts/make_titles.py "<path to Fredoka[wdth,wght].ttf>"
+    python .github/scripts/make_titles.py "<path to JetBrainsMono[wght].ttf>"
 """
 import json
 import os
@@ -16,11 +16,12 @@ from fontTools.ttLib import TTFont
 from fontTools.varLib.instancer import instantiateVariableFont
 
 TITLES = [
-    'Leo', 'Felcianas',
-    'A Little About Me', 'Featured Projects', 'My Toolbox', 'My Streak', 'Top Languages', 'Thanks For Stopping By!',
+    'Leo', 'Felcianas', '$',
+    'cat about.md', 'ls ~/projects', 'ls ~/stack', 'git log --streak', 'top --languages', 'neofetch',
+    'echo "thanks for stopping by!"', '</>', '{ }',
 ]
-TRACKING = 0.02  # extra space between letters, in em
-WEIGHT = 650     # Fredoka's weight axis runs 300-700
+TRACKING = 0     # extra space between letters, in em (none: it's a monospace face)
+WEIGHT = 800     # JetBrains Mono's weight axis runs 100-800
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'titles.json')
 
@@ -43,7 +44,8 @@ def outline(font, text):
 def main():
     font = TTFont(sys.argv[1])
     if 'fvar' in font:
-        font = instantiateVariableFont(font, {'wght': WEIGHT, 'wdth': 100})
+        axes = {a.axisTag for a in font['fvar'].axes}
+        font = instantiateVariableFont(font, {k: v for k, v in {'wght': WEIGHT, 'wdth': 100}.items() if k in axes})
     data = {t: outline(font, t) for t in TITLES}
     with open(OUT, 'w', encoding='utf-8', newline='\n') as f:
         json.dump(data, f, separators=(',', ':'))

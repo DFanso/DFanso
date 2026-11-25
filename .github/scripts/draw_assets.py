@@ -1,29 +1,52 @@
-"""Draws the profile README's artwork into assets/ in a dark arcade theme:
-soft, clay-like 3D shapes in pastel colours, real tool logos and a little
-CSS animation. The shared palette and helpers live in theme.py; the live
-GitHub stat cards are drawn by stat_cards.py in the same style.
+"""Draws the profile README's artwork into assets/ in a dark terminal / editor
+theme: every block is a window that stands off the page, the illustrations are
+isometric 3D (a workstation, server racks, containers), the type is monospace
+and the headings are shell commands. The shared palette and helpers live in
+theme.py; the live GitHub stat cards are drawn by stat_cards.py in the same style.
 
 Usage: python .github/scripts/draw_assets.py
 """
-import math
 import os
 import re
 
-from theme import (BUTTER, CARD, CARD_TOP, EDGE, LILAC, LIP, MONO, NARROW, PAD, PEACH, ROSE, SAGE, SANS, SKY, SLATE, SLATE_LIGHT,
-                   SLOT, TEXT, TEXT_DIM, TEXT_SOFT, TWINKLE, Iso, chip_label, esc, glyph, header_center, header_float, logo, orb, panel,
-                   pixels, raised, shadow_filter, stars, svg, title)
+from theme import (AMBER, BLINK, BLUE, CARD, CARD_TOP, CYAN, EDGE, GREEN, LIP, MONO, NARROW, PAD, PANEL_TOP, PURPLE, RED, SLOT,
+                   STEEL, STEEL_LIGHT, TEXT, TEXT_DIM, TEXT_SOFT, Iso, badge, chip_label, command, esc, extruded, glyph, logo, plate,
+                   raised, shadow_filter, svg, title, window)
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'assets')
 PROJECT_ICONS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'icons', 'projects')
 
-def coin(cx, cy, r, uid):
-    """A gold coin, flat-on; spin it with a scaleX animation."""
-    return (f'<defs><linearGradient id="{uid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/>'
-            f'<stop offset=".5" stop-color="{BUTTER[1]}"/><stop offset="1" stop-color="#d6a94a"/></linearGradient></defs>'
-            f'<circle cx="{cx}" cy="{cy + r * .18:.1f}" r="{r}" fill="#a87d2c"/>'
-            f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="url(#{uid})"/>'
-            f'<circle cx="{cx}" cy="{cy}" r="{r * .68:.1f}" fill="none" stroke="#c99a3e" stroke-width="{r * .14:.1f}"/>'
-            f'<rect x="{cx - r * .1:.1f}" y="{cy - r * .38:.1f}" width="{r * .2:.1f}" height="{r * .76:.1f}" rx="{r * .1:.1f}" fill="#c99a3e"/>')
+NAME = ('#e6ecff', BLUE[1], '#3d5aa8')
+ARROW = 'M-4 4 L4 -4 M-2.5 -4 H4 V2.5'
+
+
+def prompt(x, y, cmd='', size=15, path='~'):
+    """`leo@dfanso:~$ cmd` in the usual colours."""
+    return (f'<text x="{x}" y="{y}" font-family="{MONO}" font-size="{size}" font-weight="700">'
+            f'<tspan fill="{GREEN[1]}">leo@dfanso</tspan><tspan fill="{TEXT_DIM}">:</tspan><tspan fill="{BLUE[1]}">{esc(path)}</tspan>'
+            f'<tspan fill="{TEXT_DIM}">$ </tspan><tspan fill="{TEXT}">{esc(cmd)}</tspan></text>')
+
+
+def rack(iso, x, y, z, units, w=70, d=40, uh=15, cls='led'):
+    """A small server rack: `units` boxes stacked, each with a vent slot and status lights on its
+    front face (the face looking down-left)."""
+    out = []
+    for u in range(units):
+        z0 = z + u * uh
+        out.append(iso.box(x, y, z0, w, d, uh - 1.5, STEEL_LIGHT if u % 2 else STEEL))
+        lights = ''.join(f'<circle class="{cls}{" blink" if (u + k) % 3 == 1 else ""}" cx="{8 + k * 7}" cy="{(uh - 1.5) / 2:.1f}" r="2.1" '
+                         f'fill="{c[1]}"/>' for k, c in enumerate((GREEN, GREEN, AMBER if u == 1 else GREEN)))
+        out.append(f'<g transform="{iso.front_face(x, y + d, z0 + uh - 1.5)}">'
+                   f'<rect x="32" y="{(uh - 1.5) / 2 - 1.5:.1f}" width="{w - 40}" height="3" rx="1.5" fill="#1a1d2b"/>{lights}</g>')
+    return ''.join(out)
+
+
+def container(iso, x, y, z, s, col):
+    """A shipping-container cube with ribs on its front and side faces."""
+    ribs = ''.join(f'<path d="M{s * k / 5:.1f} 3 V{s - 3:.1f}" stroke="{col[2]}" stroke-width="2" stroke-linecap="round" opacity=".7"/>' for k in range(1, 5))
+    return (iso.box(x, y, z, s, s, s, col)
+            + f'<g transform="{iso.front_face(x, y + s, z + s)}">{ribs}</g>'
+            + f'<g transform="{iso.side_face(x + s, y, z + s)}">{ribs}</g>')
 
 
 # ─────────────────────────────── hero ───────────────────────────────
@@ -32,152 +55,137 @@ def hero():
     W, H = 1000, 420
     iso = Iso(712, 176)
 
-    slab = iso.box(0, 0, 0, 260, 200, 24, SLATE)
-    rim = iso.poly([iso.p(0, 0, 24), iso.p(260, 0, 24), iso.p(260, 30, 24), iso.p(0, 30, 24)], '#525d7a')
+    slab = iso.box(0, 0, 0, 260, 200, 24, STEEL)
+    rim = iso.poly([iso.p(0, 0, 24), iso.p(260, 0, 24), iso.p(260, 30, 24), iso.p(0, 30, 24)], '#535c80')
 
     monitor = [
-        iso.box(95, 6, 24, 70, 44, 6, SLATE_LIGHT),
-        iso.box(122, 20, 30, 16, 10, 40, SLATE_LIGHT),
-        iso.box(36, 26, 66, 188, 10, 104, LILAC),
+        iso.box(95, 6, 24, 70, 44, 6, STEEL_LIGHT),
+        iso.box(122, 20, 30, 16, 10, 36, STEEL_LIGHT),
+        iso.box(22, 26, 60, 216, 10, 124, ('#3d4462', '#2a2f45', '#323855')),
     ]
-    face = iso.front_face(36, 36, 170)
-    # A terminal running a deploy: each line types in after the one before, then the run loops.
-    term_lines = [
-        ('$ terraform apply', SKY[0]),
-        ('  + 12 to add, 0 to destroy', TEXT_SOFT),
-        ('$ kubectl rollout status', SKY[0]),
-        ('  deployment "api" ready', SAGE[0]),
+    face = iso.front_face(22, 36, 184)
+    # A terminal running a deploy: each line types in after the one before, the pipeline stages
+    # turn green one by one, then the run loops. The base state (no animation) is the finished run.
+    term = [
+        ('$ terraform apply -auto-approve', TEXT),
+        ('  Apply complete! 12 added.', GREEN[1]),
+        ('$ kubectl rollout status api', TEXT),
+        ('  deployment "api" rolled out', GREEN[1]),
+        ('$ git push origin main', TEXT),
     ]
-    tl = ''.join(f'<text class="ln l{k}" x="17" y="{27 + k * 15}" font-family="{MONO}" font-size="9.5" font-weight="700" fill="{c}">{esc(t)}</text>'
-                 for k, (t, c) in enumerate(term_lines))
-    game = f'''<g transform="{face}">
-  <clipPath id="screen" clipPathUnits="userSpaceOnUse"><rect x="9" y="9" width="170" height="86" rx="7"/></clipPath>
-  <rect x="9" y="9" width="170" height="86" rx="7" fill="#0f1420"/>
+    tl = ''.join(f'<text class="ln l{k}" x="17" y="{24 + k * 14.5}" font-family="{MONO}" font-size="8.2" font-weight="700" fill="{c}">'
+                 + (f'<tspan fill="{GREEN[1]}">$</tspan>{esc(t[1:])}' if t.startswith('$') else esc(t)) + '</text>'
+                 for k, (t, c) in enumerate(term))
+    stages = ''.join(
+        f'<g class="ln l{5 + k}"><rect class="st s{k}" x="{17 + k * 46}" y="95" width="40" height="15" rx="3" fill="{GREEN[2]}"/>'
+        f'<text x="{21 + k * 46}" y="105.5" font-family="{MONO}" font-size="7.4" font-weight="800" fill="#10131c">{n}</text>'
+        f'<path d="M{46 + k * 46} 102.5 l2 2 l4 -4.5" fill="none" stroke="#10131c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></g>'
+        for k, n in enumerate(('build', 'test', 'scan', 'ship')))
+    screen = f'''<g transform="{face}">
+  <clipPath id="screen" clipPathUnits="userSpaceOnUse"><rect x="8" y="8" width="200" height="108" rx="6"/></clipPath>
+  <rect x="8" y="8" width="200" height="108" rx="6" fill="#11121a"/>
   <g clip-path="url(#screen)">
-    <rect x="9" y="9" width="170" height="86" fill="url(#termbg)"/>
+    <rect x="8" y="8" width="200" height="108" fill="url(#termbg)"/>
     {tl}
-    <rect x="17" y="84" width="150" height="4" rx="2" fill="#253049"/>
-    <rect class="bar" x="17" y="84" width="150" height="4" rx="2" fill="{SAGE[1]}"/>
-    <rect class="cursor" x="17" y="74" width="6" height="2.5" fill="{TEXT}"/>
+    {stages}
   </g>
-  <rect class="scan" x="9" y="9" width="170" height="86" rx="7" fill="url(#scan)"/>
+  <rect x="8" y="8" width="200" height="108" rx="6" fill="url(#scan)"/>
 </g>'''
 
-    kb = iso.box(58, 92, 24, 128, 40, 7, SLATE_LIGHT)
-    keys = [f'<rect x="{6 + col * 11.8:.1f}" y="{5 + row * 11}" width="9" height="8.5" rx="2" fill="#8590b0"/>'
+    kb = iso.box(58, 96, 24, 128, 40, 7, STEEL_LIGHT)
+    keys = [f'<rect x="{6 + col * 11.8:.1f}" y="{5 + row * 11}" width="9" height="8.5" rx="2" fill="#6b7499"/>'
             for row in range(3) for col in range(10)]
-    keys.append('<rect class="key" x="41.4" y="27" width="44" height="8.5" rx="2" fill="#8590b0"/>')
-    keys.append(f'<rect class="key k2" x="6" y="5" width="9" height="8.5" rx="2" fill="#8590b0"/>')
-    keyboard = f'{kb}<g transform="{iso.top_face(58, 92, 31)}">{"".join(keys)}</g>'
+    keys.append('<rect class="key" x="41.4" y="27" width="44" height="8.5" rx="2" fill="#6b7499"/>')
+    keys.append('<rect class="key k2" x="100.6" y="16" width="9" height="8.5" rx="2" fill="#6b7499"/>')
+    keyboard = f'{kb}<g transform="{iso.top_face(58, 96, 31)}">{"".join(keys)}</g>'
 
-    note = (f'<g transform="{iso.top_face(196, 70, 24.5)}">'
-            f'<rect x="2" y="3" width="40" height="40" rx="3" fill="{BUTTER[2]}"/>'
-            f'<rect x="0" y="0" width="40" height="40" rx="3" fill="{BUTTER[0]}"/>'
-            f'<path d="M7 12 H31 M7 20 H27 M7 28 H22" stroke="#d8b25a" stroke-width="2.4" stroke-linecap="round"/></g>')
-    # A small server, two units high, with status lights on its front.
-    rack = [iso.box(102, 146, 24 + u * 15, 64, 30, 13, SLATE_LIGHT if u else SLATE) for u in range(2)]
-    leds = ''.join(
-        f'<circle class="led{" blink" if (u + k) % 2 else ""}" cx="{iso.p(110 + k * 9, 176, 30.5 + u * 15)[0]:.1f}" cy="{iso.p(110 + k * 9, 176, 30.5 + u * 15)[1]:.1f}" r="2.4" fill="{c}"/>'
-        for u in range(2) for k, c in enumerate([SAGE[1], SAGE[1], BUTTER[1]]))
-    controller = ''.join(rack) + leds
+    server = rack(iso, 150, 150, 24, 3, 70, 40)
+    boxes = container(iso, 14, 150, 24, 30, CYAN) + container(iso, 14, 150, 54, 30, BLUE) + container(iso, 48, 160, 24, 26, PURPLE)
 
-    mug_x, mug_y = 226, 136
+    mug_x, mug_y = 236, 112
     mx, my = iso.p(mug_x, mug_y, 24)
-    mug = (iso.cylinder(mug_x, mug_y, 24, 17, 34, PEACH)
-           + f'<ellipse cx="{mx:.1f}" cy="{my - 34:.1f}" rx="14.5" ry="7.4" fill="#6b4336"/>'
-           + f'<path d="M{mx + 19:.1f} {my - 26:.1f} c12 0 12 18 0 18" fill="none" stroke="{PEACH[1]}" stroke-width="6" stroke-linecap="round"/>'
-           + ''.join(f'<path class="steam s{i}" d="M{mx - 6 + i * 6:.1f} {my - 44:.1f} c-6 -8 6 -12 0 -20 c-6 -8 6 -12 0 -20" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>' for i in range(3)))
-    px, py = iso.p(26, 168, 24)
-    leaves = ''.join(
-        f'<ellipse cx="0" cy="-22" rx="8" ry="22" fill="{c}" transform="rotate({a})"/>'
-        for a, c in [(-38, SAGE[1]), (34, SAGE[1]), (-12, SAGE[0]), (14, '#c2dcb9')])
-    plant = (iso.cylinder(26, 168, 24, 16, 26, ROSE)
-             + f'<g class="sway" transform="translate({px:.1f} {py - 30:.1f})"><g>{leaves}</g></g>')
+    mug = (iso.cylinder(mug_x, mug_y, 24, 15, 30, AMBER)
+           + f'<ellipse cx="{mx:.1f}" cy="{my - 30:.1f}" rx="12.5" ry="6.4" fill="#4a3424"/>'
+           + f'<path d="M{mx + 17:.1f} {my - 23:.1f} c11 0 11 16 0 16" fill="none" stroke="{AMBER[1]}" stroke-width="5" stroke-linecap="round"/>'
+           + ''.join(f'<path class="steam s{i}" d="M{mx - 5 + i * 5:.1f} {my - 38:.1f} c-5 -7 5 -10 0 -17 c-5 -7 5 -10 0 -17" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" opacity=".35"/>' for i in range(3)))
 
     gx, gy = iso.p(130, 30, 120)
-    screen_glow = f'<ellipse class="glow" cx="{gx:.0f}" cy="{gy:.0f}" rx="170" ry="110" fill="url(#screenglow)"/>'
-    desk = '\n'.join([slab, rim, *monitor, game, keyboard, note, controller, mug, plant])
+    screen_glow = f'<ellipse class="glow" cx="{gx:.0f}" cy="{gy:.0f}" rx="180" ry="115" fill="url(#screenglow)"/>'
+    desk = '\n'.join([slab, rim, *monitor, screen, keyboard, boxes, server, mug])
 
     floaters = '\n'.join([
-        f'<g class="float f1">{orb(958, 104, 22, PEACH, "ball")}</g>',
-        f'<g class="float f2">{Iso(574, 82).box(0, 0, 0, 28, 28, 28, BUTTER)}</g>',
-        f'<g class="float f3"><ellipse cx="946" cy="352" rx="20" ry="9" fill="none" stroke="{LILAC[1]}" stroke-width="9"/></g>',
-        f'<g transform="translate(560 330)"><g class="float f4"><g class="spin">{coin(0, 0, 15, "coinA")}</g></g></g>',
+        f'<g class="float f1">{extruded("</>", 936, 112, 34, PURPLE, 4, "middle")}</g>',
+        f'<g class="float f2">{extruded("{ }", 566, 98, 32, AMBER, 4, "middle")}</g>',
+        f'<g class="float f3">{container(Iso(944, 318), 0, 0, 0, 24, CYAN)}</g>',
+        f'<g class="float f4"><circle cx="562" cy="336" r="17" fill="{GREEN[2]}"/><circle cx="562" cy="332" r="17" fill="{GREEN[1]}"/>'
+        f'<path d="M554 332 l5.5 5.5 l10 -11" fill="none" stroke="#10131c" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></g>',
     ])
 
     sx, sy = iso.p(130, 100, -40)
     ground = f'<ellipse class="shade" cx="{sx:.1f}" cy="{sy + 70:.1f}" rx="200" ry="26" fill="#000" opacity=".45"/>'
 
-    # Words on the left.
-    def name(text, y):
-        # Set in Fredoka, with a soft clay extrusion under it.
-        layers = ''.join(title(text, 62, y + d, 58, c) for d, c in [(7, '#1d2844'), (5, '#33436c'), (3, '#4b5d93')])
-        return layers + title(text, 62, y, 58, 'url(#namefill)')
+    def tab(x, label, ext, col, active):
+        """An editor tab: a file-type dot, the role as a file name, the active one lit along its top."""
+        text = f'{label}{ext}'
+        w = round(38 + len(text) * 7.8)
+        top = (f'<rect x="0" y="0" width="{w}" height="3" rx="1.5" fill="{col[1]}"/>' if active else '')
+        return (f'<g transform="translate({x} 320)">{raised(0, 0, w, 34, 8, CARD_TOP if active else CARD, LIP, 5, EDGE)}{top}'
+                f'<circle cx="16" cy="17" r="4.5" fill="{col[1]}"/>'
+                f'<text x="28" y="21.5" font-family="{MONO}" font-size="13" font-weight="700" fill="{TEXT if active else TEXT_SOFT}">{esc(label)}'
+                f'<tspan fill="{TEXT_DIM}">{esc(ext)}</tspan></text></g>'), w
 
-    def chip(x, label, col):
-        w = 40 + len(label) * 8.4
-        return (f'<g transform="translate({x:.0f} 314)">{raised(0, 0, round(w), 34, 17, CARD, LIP, 4, CARD_TOP)}'
-                f'<circle cx="18" cy="17" r="5" fill="{col[1]}"/>'
-                f'<text x="30" y="22.5" font-family="{SANS}" font-size="14" font-weight="700" fill="{col[0]}">{esc(label)}</text></g>'), w
+    tabs, tx = [], 56
+    for label, ext, col, active in [('devops', '.tf', PURPLE, True), ('backend', '.ts', BLUE, False), ('cloud-iac', '.yaml', CYAN, False)]:
+        t, w = tab(tx, label, ext, col, active)
+        tabs.append(t)
+        tx += w + 8
 
-    chips, cx_ = [], 60
-    for label, col in [('DevOps Engineer', SKY), ('Backend Dev', PEACH), ('Cloud & IaC', LILAC)]:
-        c, w = chip(cx_, label, col)
-        chips.append(c)
-        cx_ += w + 10
-
-    # The words sit centred top to bottom in the banner.
     words = '\n'.join([
-        f'<text x="62" y="78" font-family="{MONO}" font-size="15" fill="{BUTTER[0]}">&gt; Hello World! I\'m</text>',
-        name('Leo', 146),
-        name('Felcianas', 214),
-        f'<text x="62" y="262" font-family="{SANS}" font-size="18" font-weight="600" fill="{TEXT_SOFT}">I build and run the infrastructure</text>',
-        f'<text x="62" y="287" font-family="{SANS}" font-size="18" font-weight="600" fill="{TEXT_SOFT}">and backends behind real products.</text>',
-        *chips,
+        prompt(56, 92, 'whoami'),
+        extruded('Leo', 56, 162, 60, NAME, 4),
+        extruded('Felcianas', 56, 230, 60, NAME, 4),
+        f'<text x="56" y="272" font-family="{MONO}" font-size="15" fill="{TEXT_DIM}">// DevOps engineer &amp; backend developer.</text>',
+        f'<text x="56" y="295" font-family="{MONO}" font-size="15" fill="{TEXT_SOFT}">I build and run the infra behind real products.</text>',
+        *tabs,
     ])
 
     defs = f'''<defs>
   {shadow_filter('soft', 16, 16, 0.55)}
-  <linearGradient id="termbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#121a2b"/><stop offset="1" stop-color="#1b2740"/></linearGradient>
-  <linearGradient id="scan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".12"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
-  <radialGradient id="screenglow"><stop offset="0" stop-color="{LILAC[1]}" stop-opacity=".35"/><stop offset="1" stop-color="{LILAC[1]}" stop-opacity="0"/></radialGradient>
-  <linearGradient id="namefill" x1="0" y1="0" x2="0" y2="1"><stop offset=".2" stop-color="#fffaf3"/><stop offset="1" stop-color="{LILAC[0]}"/></linearGradient>
+  <linearGradient id="termbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#14161f"/><stop offset="1" stop-color="#1a1d2b"/></linearGradient>
+  <linearGradient id="scan" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".08"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <radialGradient id="screenglow"><stop offset="0" stop-color="{BLUE[1]}" stop-opacity=".3"/><stop offset="1" stop-color="{BLUE[1]}" stop-opacity="0"/></radialGradient>
 </defs>'''
 
-    style = TWINKLE + '''
-.desk { animation: bob 6s ease-in-out infinite; }
-.shade { animation: shade 6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-@keyframes bob { 50% { transform: translateY(-7px); } }
-@keyframes shade { 50% { transform: scale(.94); opacity: .3; } }
-.glow { animation: glow 4s ease-in-out infinite; }
-@keyframes glow { 50% { opacity: .65; } }
-.float { animation: bob 5s ease-in-out infinite; }
-.f2 { animation-duration: 6.5s; animation-delay: -2s; }
-.f3 { animation-duration: 7s; animation-delay: -4s; }
-.f4 { animation-duration: 4.4s; animation-delay: -1s; }
-.spin { animation: spin 2.2s linear infinite; transform-box: fill-box; transform-origin: center; }
-@keyframes spin { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.12); } }
-.steam { opacity: 0; animation: steam 3.6s ease-out infinite; }
-.s1 { animation-delay: 1.2s; } .s2 { animation-delay: 2.4s; }
-@keyframes steam { 0% { opacity: 0; transform: translateY(6px); } 30% { opacity: .6; } 100% { opacity: 0; transform: translateY(-14px); } }
-.sway > g { animation: sway 4s ease-in-out infinite; transform-origin: 0 0; }
-@keyframes sway { 50% { transform: rotate(5deg); } }
-.blink { animation: blink 2.4s steps(1) infinite; }
-@keyframes blink { 50% { opacity: .35; } }
-.key { animation: key 3.2s ease-in-out infinite; }
-.k2 { animation-delay: -1.4s; }
-@keyframes key { 0%, 80%, 100% { fill: #8590b0; } 88% { fill: #dfe4f7; } }
-.ln { animation: type 8s steps(1) infinite both; }
-.l1 { animation-delay: .8s; } .l2 { animation-delay: 2s; } .l3 { animation-delay: 3.4s; }
-@keyframes type { 0% { opacity: 0; } 4%, 86% { opacity: 1; } 90%, 100% { opacity: 0; } }
-.bar { animation: bar 8s ease-in-out infinite; transform-box: fill-box; transform-origin: left; }
-@keyframes bar { 0% { transform: scaleX(0); } 55%, 90% { transform: scaleX(1); } 100% { transform: scaleX(0); } }
-.cursor { animation: blink 1s steps(1) infinite; }
+    style = BLINK + f'''
+.desk {{ animation: bob 6s ease-in-out infinite; }}
+.shade {{ animation: shade 6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }}
+@keyframes bob {{ 50% {{ transform: translateY(-7px); }} }}
+@keyframes shade {{ 50% {{ transform: scale(.94); opacity: .3; }} }}
+.glow {{ animation: glow 4s ease-in-out infinite; }}
+@keyframes glow {{ 50% {{ opacity: .6; }} }}
+.float {{ animation: bob 5s ease-in-out infinite; }}
+.f2 {{ animation-duration: 6.5s; animation-delay: -2s; }}
+.f3 {{ animation-duration: 7s; animation-delay: -4s; }}
+.f4 {{ animation-duration: 4.4s; animation-delay: -1s; }}
+.steam {{ opacity: 0; animation: steam 3.6s ease-out infinite; }}
+.s1 {{ animation-delay: 1.2s; }} .s2 {{ animation-delay: 2.4s; }}
+@keyframes steam {{ 0% {{ opacity: 0; transform: translateY(6px); }} 30% {{ opacity: .45; }} 100% {{ opacity: 0; transform: translateY(-14px); }} }}
+.blink {{ animation: blink 2.4s steps(1) infinite; }}
+@keyframes blink {{ 50% {{ opacity: .3; }} }}
+.key {{ animation: key 3.2s ease-in-out infinite; }}
+.k2 {{ animation-delay: -1.4s; }}
+@keyframes key {{ 0%, 80%, 100% {{ fill: #6b7499; }} 88% {{ fill: {BLUE[0]}; }} }}
+.ln {{ animation: type 10s steps(1) infinite both; }}
+.l1 {{ animation-delay: .7s; }} .l2 {{ animation-delay: 1.6s; }} .l3 {{ animation-delay: 2.6s; }} .l4 {{ animation-delay: 3.5s; }}
+.l5 {{ animation-delay: 4.1s; }} .l6 {{ animation-delay: 4.7s; }} .l7 {{ animation-delay: 5.3s; }} .l8 {{ animation-delay: 5.9s; }}
+@keyframes type {{ 0% {{ opacity: 0; }} 3%, 88% {{ opacity: 1; }} 92%, 100% {{ opacity: 0; }} }}
+.st {{ animation: stage 10s steps(1) infinite both; }}
+.s1.st {{ animation-delay: 4.7s; }} .s2.st {{ animation-delay: 5.3s; }} .s3.st {{ animation-delay: 5.9s; }} .s0.st {{ animation-delay: 4.1s; }}
+@keyframes stage {{ 0% {{ fill: {AMBER[1]}; }} 5%, 100% {{ fill: {GREEN[1]}; }} }}
 '''
     body = f'''{defs}
-{panel(W, H, (LILAC[2], .75, .45, .55), 'h')}
-{stars(W, H, 46)}
-<g transform="translate(730 192) scale(.88) translate(-730 -222)">
+{window(W, H, 'leo@dfanso: ~ — zsh', 'h', glow=(BLUE[2], .75, .5, .55))}
+<g transform="translate(736 214) scale(.84) translate(-730 -222)">
 {screen_glow}
 {ground}
 <g class="desk" filter="url(#soft)">
@@ -186,102 +194,88 @@ def hero():
 {floaters}
 </g>
 {words}'''
-    return svg(W, H + PAD, "Leo Felcianas: DevOps engineer and backend developer. I build and run the infrastructure and backends behind real products.", body, style)
+    return svg(W, H + PAD + 8, "Leo Felcianas: DevOps engineer and backend developer. I build and run the infrastructure and backends behind real products.", body, style)
 
 
 # ─────────────────────────────── link tiles ───────────────────────────────
 
 LINKS = {
-    # kind: (name, kicker, handle, colour)
-    'portfolio': ('Portfolio', 'Visit', 'itsme.dfanso.dev', PEACH),
-    'linkedin': ('LinkedIn', 'Connect', 'in/leogavin', SKY),
-    'instagram': ('Instagram', 'Follow', '@dfansoo', ROSE),
-    'email': ('Email', 'Say Hi', 'leogavin123@outlook.com', BUTTER),
+    # kind: (name, verb, handle, colour)
+    'portfolio': ('portfolio', 'open', 'itsme.dfanso.dev', GREEN),
+    'linkedin': ('linkedin', 'connect', 'in/leogavin', BLUE),
+    'instagram': ('instagram', 'follow', '@dfansoo', PURPLE),
+    'email': ('email', 'mail', 'leogavin123@outlook.com', AMBER),
 }
 
 
 def button(kind, i):
-    """A link as a clay tile that matches the stat tiles above it. The README puts the four side by
-    side, each a quarter of NARROW wide (22%); tile i sits i*3px in, so the tiles fill the row edge
-    to edge with 12px gaps, at the same scale as everything else."""
-    name, kicker, handle, col = LINKS[kind]
+    """A link as a small terminal window. The README puts the four side by side, each a quarter of
+    NARROW wide (22%); tile i sits i*3px in, so the tiles fill the row edge to edge with 12px gaps,
+    at the same scale as everything else."""
+    name, verb, handle, col = LINKS[kind]
     delay = i * 0.4
-    W, H = 250, 108 + 6 + PAD
-    x, y, w, h = i * 3, 0, 241, 108
+    W, H = 250, 112 + 8 + PAD
+    x, y, w, h = i * 3, 0, 241, 112
     if kind == 'portfolio':
-        icon = glyph('sparkles', x + 19, y + 16, 22, '#2e2a36', 2.3)
+        icon = glyph('globe', x + 25, y + 52, 22, '#10131c', 2.3)
     else:
-        icon = logo({'email': 'gmail'}.get(kind, kind), x + 20, y + 17, 20)
-    style = f'''
+        icon = logo({'email': 'gmail'}.get(kind, kind), x + 25, y + 52, 22)
+    cursor = f'<tspan class="cursor" fill="{TEXT}">▌</tspan>' if len(handle) < 21 else ''
+    style = BLINK + f'''
 .pop {{ animation: pop 6s ease-in-out infinite; animation-delay: {-delay}s; }}
 @keyframes pop {{ 0%, 8%, 100% {{ transform: translateY(0); }} 4% {{ transform: translateY(-4px); }} }}
-.shine {{ animation: shine 6s ease-in-out infinite; animation-delay: {delay}s; }}
-@keyframes shine {{ 0%, 4% {{ transform: skewX(-20deg) translateX(-60px); }} 22%, 100% {{ transform: skewX(-20deg) translateX(300px); }} }}
 .go {{ animation: go 2.4s ease-in-out infinite; animation-delay: {-delay}s; }}
 @keyframes go {{ 50% {{ transform: translate(2px, -2px); }} }}
 '''
-    body = f'''<defs>{shadow_filter('soft', 6, 6, 0.35)}
-<clipPath id="tile"><rect x="{x}" y="{y}" width="{w}" height="{h}" rx="18"/></clipPath>
-<linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-<g filter="url(#soft)">{raised(x, y, w, h, 18)}</g>
-<g clip-path="url(#tile)"><rect class="shine" x="0" y="0" width="60" height="{H}" fill="url(#g)" transform="skewX(-20)"/></g>
-<g class="pop"><circle cx="{x + 30}" cy="{y + 30}" r="19" fill="{col[1]}"/><circle cx="{x + 30}" cy="{y + 27}" r="19" fill="{col[0]}"/>{icon}</g>
-<text x="{x + 60}" y="{y + 31}" font-family="{MONO}" font-size="11.5" font-weight="800" letter-spacing=".5" fill="{col[1]}">{kicker}</text>
-<g transform="translate({x + w - 30} {y + 27})"><circle r="13" fill="{CARD_TOP}"/>
-<g class="go"><path d="M-4 4 L4 -4 M-2.5 -4 H4 V2.5" fill="none" stroke="{col[1]}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g></g>
-<text x="{x + 18}" y="{y + 78}" font-family="{SANS}" font-size="21" font-weight="800" fill="{TEXT}">{name}</text>
-<text x="{x + 18}" y="{y + 96}" font-family="{MONO}" font-size="11" fill="{TEXT_DIM}">{esc(handle)}</text>'''
-    return svg(W, H, f'{name}: {handle}', body, style)
+    body = f'''{window(w, h, '', 'b', bar=28, x=x, y=y, rx=12, depth=6)}
+<text x="{x + w / 2}" y="{y + 18.5}" font-family="{MONO}" font-size="11" font-weight="600" fill="{TEXT_DIM}" text-anchor="middle">~/{esc(name)}</text>
+<g transform="translate({x + w - 18} {y + 14})"><g class="go"><path d="{ARROW}" fill="none" stroke="{col[1]}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></g>
+<g class="pop">{raised(x + 16, y + 43, 40, 40, 10, col[1], col[2], 4, col[0])}{icon}</g>
+<text x="{x + 70}" y="{y + 56}" font-family="{MONO}" font-size="11.5" font-weight="700"><tspan fill="{GREEN[1]}">$</tspan><tspan fill="{TEXT_DIM}"> {verb}</tspan></text>
+<text x="{x + 70}" y="{y + 77}" font-family="{MONO}" font-size="17" font-weight="800" fill="{TEXT}">{esc(name)}</text>
+<text x="{x + 70 if len(handle) < 21 else x + 16}" y="{y + 100}" font-family="{MONO}" font-size="11" fill="{col[1]}">{esc(handle)}{cursor}</text>'''
+    return svg(W, H, f'{name.capitalize()}: {handle}', body, style)
 
 
-# ─────────────────────────────── about: quest log ───────────────────────────────
+# ─────────────────────────────── about ───────────────────────────────
 
 def about():
-    """About me as four separate facts, each a floating clay object: what I work on, what I studied,
-    what I use day to day and what I'm building on the side. No path or levels, so nothing reads as a sequence."""
-    W, H = 1000, 376
+    """About me as four separate facts, like the keys of a YAML file, each with a floating 3D key-cap
+    icon: what I work on, what I studied, what I use day to day and what I'm building on the side."""
+    W, H = 1000, 388
     facts = [
-        (PEACH, 'server', 'Working On', ['Backends, Automation', '& Infrastructure'], 'DevOps & software engineer'),
-        (LILAC, 'cap', 'Studied', ['Degree In', 'Software Engineering'], 'Based in Sri Lanka'),
-        (SAGE, 'workflow', 'Day To Day', ['Azure, Terraform', '& CI/CD'], 'Migrations and monitoring'),
-        (SKY, 'bot', 'Also Building', ['Tools For', 'AI Agents'], 'Secrets and Telegram, kept safe'),
+        (GREEN, 'server', 'working_on:', ['Backends, Automation', '& Infrastructure'], '# devops & software engineer'),
+        (PURPLE, 'book-marked', 'studied:', ['Degree in', 'Software Engineering'], '# based in Sri Lanka'),
+        (BLUE, 'workflow', 'day_to_day:', ['Azure, Terraform', '& CI/CD'], '# migrations & monitoring'),
+        (CYAN, 'bot', 'also_building:', ['Tools For', 'AI Agents'], '# secrets & telegram, kept safe'),
     ]
 
-    def object_(kind, col):
-        if kind in ('server', 'workflow', 'bot'):
-            # A line icon pressed into a clay tile, the tile's darker underside giving it depth.
-            return (f'<rect x="-32" y="-26" width="64" height="58" rx="16" fill="{col[2]}"/>'
-                    f'<rect x="-32" y="-32" width="64" height="58" rx="16" fill="{col[0]}"/>'
-                    + glyph(kind, -17, -20, 34, '#232a3a', 2.4))
-        if kind == 'cap':
-            return (f'<path d="M-18 -6 v12 c0 7 36 7 36 0 v-12" fill="{col[1]}"/>'
-                    f'<path d="M0 -30 L36 -14 L0 2 L-36 -14 Z" fill="{col[2]}" transform="translate(0 4)"/>'
-                    f'<path d="M0 -30 L36 -14 L0 2 L-36 -14 Z" fill="{col[0]}"/>'
-                    f'<path d="M0 -14 L26 -4 V12" fill="none" stroke="{BUTTER[1]}" stroke-width="3" stroke-linecap="round"/>'
-                    f'<circle cx="26" cy="14" r="4" fill="{BUTTER[1]}"/>')
-        return Iso(0, 4).box(-17, -17, 0, 34, 34, 34, col)
+    def keycap(kind, col):
+        # An isometric key cap with a line icon printed on its top.
+        iso = Iso(0, -18)
+        return (iso.box(-28, -28, 0, 56, 56, 18, col)
+                + f'<g transform="{iso.top_face(-28, -28, 18)}">' + glyph(kind, 10, 10, 36, '#10131c', 2.3) + '</g>')
 
     step = W / len(facts)
     xs = [step * (i + .5) for i in range(len(facts))]
-    oy, floor = 180, 222  # where each object floats, and its shadow on the floor
+    oy, floor = 200, 232
 
     nodes = []
     for i, (col, kind, tag, lines, sub) in enumerate(facts):
         cx = xs[i]
-        sw = 26 + len(tag) * 7.4
-        shadow = f'<ellipse class="shd o{i}" cx="{cx:.0f}" cy="{floor}" rx="34" ry="7" fill="#000" opacity=".45"/>'
-        text = ''.join(f'<text x="{cx:.0f}" y="{290 + j * 22}" font-family="{SANS}" font-size="18" font-weight="800" fill="{TEXT}" text-anchor="middle">{esc(t)}</text>'
+        shadow = f'<ellipse class="shd o{i}" cx="{cx:.0f}" cy="{floor}" rx="40" ry="8" fill="#000" opacity=".45"/>'
+        tg, _ = badge(tag, col, cx, 256, 'middle', 12)
+        text = ''.join(f'<text x="{cx:.0f}" y="{304 + j * 22}" font-family="{MONO}" font-size="16" font-weight="800" fill="{TEXT}" text-anchor="middle">{esc(t)}</text>'
                        for j, t in enumerate(lines))
         nodes.append(f'''<g>
   {shadow}
-  <g transform="translate({cx:.0f} {oy})"><g class="obj o{i}">{object_(kind, col)}</g></g>
-  <rect x="{cx - sw / 2:.0f}" y="246" width="{sw:.0f}" height="22" rx="11" fill="{col[2]}" fill-opacity=".2" stroke="{col[1]}" stroke-opacity=".55"/>
-  <text x="{cx:.0f}" y="261" font-family="{MONO}" font-size="11" font-weight="800" letter-spacing=".5" fill="{col[0]}" text-anchor="middle">{tag}</text>
+  <g transform="translate({cx:.0f} {oy})"><g class="obj o{i}">{keycap(kind, col)}</g></g>
+  {tg}
   {text}
-  <text x="{cx:.0f}" y="{290 + len(lines) * 22 + 2}" font-family="{SANS}" font-size="13" fill="{TEXT_SOFT}" text-anchor="middle">{esc(sub)}</text>
+  <text x="{cx:.0f}" y="{304 + len(lines) * 22 + 2}" font-family="{MONO}" font-size="11.5" fill="{TEXT_DIM}" text-anchor="middle">{esc(sub)}</text>
 </g>''')
 
-    style = '''
+    style = BLINK + '''
 .obj { animation: lift 4.5s ease-in-out infinite; }
 .o1 { animation-delay: -1.1s; } .o2 { animation-delay: -2.2s; } .o3 { animation-delay: -3.3s; }
 @keyframes lift { 50% { transform: translate(0, -6px); } }
@@ -289,28 +283,28 @@ def about():
 @keyframes shd { 50% { transform: scale(.85); opacity: .3; } }
 '''
     body = f'''<defs>{shadow_filter('soft', 10, 12, 0.45)}</defs>
-{panel(W, H, (PEACH[2], .5, 0, .6), 'a')}
-{header_center('A Little About Me', 'Player Profile', PEACH, W / 2, 36)}
+{window(W, H, '~/about.md', 'a', glow=(GREEN[2], .5, 0, .6))}
+{command('cat about.md', W / 2, 98, 26)}
 <g filter="url(#soft)">{''.join(nodes)}</g>'''
-    return svg(W, H + PAD, 'About me. DevOps and software engineer working on backends, automation and infrastructure. Studied for a degree in Software Engineering; based in Sri Lanka. Day to day: Azure, Terraform and CI/CD, migrations and monitoring. Also building tools that let AI agents work safely, with secrets and Telegram.', body, style)
+    return svg(W, H + PAD + 8, 'About me. DevOps and software engineer working on backends, automation and infrastructure. Studied for a degree in Software Engineering; based in Sri Lanka. Day to day: Azure, Terraform and CI/CD, migrations and monitoring. Also building tools that let AI agents work safely, with secrets and Telegram.', body, style)
 
 
 # ─────────────────────────────── featured projects ───────────────────────────────
 
 PROJECTS = [
-    # icon, name, (status, colour), kind, description (two lines), tech
-    ('kv', 'LLM Key Vault', ('Author', LILAC), 'Secrets Broker · DFanso',
-     ['A local secrets broker for AI coding agents: they use your', 'API keys, tokens and DB passwords without seeing them.'],
-     ['Rust', 'MCP', 'Postgres', 'Redis']),
-    ('telegram-mcp', 'Telegram MCP', ('Contributor', SKY), 'MCP Server · iddhi-sulakshana',
-     ['Telegram for Claude Code through one always-on daemon,', 'shared by every session. Sends only what you allow.'],
-     ['TypeScript', 'Bun', 'MCP']),
-    ('server-dash', 'Server Dash', ('Author', SAGE), 'Dashboard · Self-Hosted',
-     ['A self-hosted dashboard for a V2rayA hotspot: CPU, memory,', 'throughput and V2rayA status, shipped as one binary.'],
-     ['Rust', 'React', 'TypeScript']),
-    ('bridge-relay', 'Bridge Relay', ('Author', PEACH), 'Claude Code · SSH Relay',
-     ['Joins Claude Code session-bridge across machines over', 'SSH, so a remote session shows up as a local peer.'],
-     ['Python', 'SSH', 'Claude Code']),
+    # icon, name, repo path, (status, colour), kind, description (two lines), tech
+    ('kv', 'LLM Key Vault', 'DFanso/key-vault-for-llm', ('author', PURPLE), 'secrets broker',
+     ['A local secrets broker for AI coding agents: they use', 'your API keys, tokens and DB passwords unseen.'],
+     ['rust', 'mcp', 'postgres', 'redis']),
+    ('telegram-mcp', 'Telegram MCP', 'iddhi-sulakshana/telegram-mcp', ('contributor', CYAN), 'mcp server',
+     ['Telegram for Claude Code through one always-on', 'daemon shared by every session; sends what you allow.'],
+     ['typescript', 'bun', 'mcp']),
+    ('server-dash', 'Server Dash', 'DFanso/server-dash', ('author', GREEN), 'self-hosted dashboard',
+     ['A self-hosted dashboard for a V2rayA hotspot: CPU,', 'memory, throughput and status, as one binary.'],
+     ['rust', 'react', 'typescript']),
+    ('bridge-relay', 'Bridge Relay', 'DFanso/bridge-relay', ('author', AMBER), 'claude code · ssh relay',
+     ['Joins Claude Code session-bridge across machines', 'over SSH: a remote session shows up as a local peer.'],
+     ['python', 'ssh', 'claude-code']),
 ]
 
 
@@ -321,8 +315,8 @@ def app_icon(key, s):
     out = f'<rect y="5" width="{s}" height="{s}" rx="{r}" fill="{LIP}"/><clipPath id="ic-{key}">{tile}/></clipPath><g clip-path="url(#ic-{key})">'
     if key == 'bridge-relay':
         # No icon of its own: a cable glyph on a tile in the card's colour.
-        out += (f'<linearGradient id="br" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{PEACH[0]}"/><stop offset="1" stop-color="{PEACH[2]}"/></linearGradient>'
-                f'{tile} fill="url(#br)"/>' + glyph('cable', s * .22, s * .22, s * .56, '#232a3a', 2.2))
+        out += (f'<linearGradient id="br" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{AMBER[0]}"/><stop offset="1" stop-color="{AMBER[2]}"/></linearGradient>'
+                f'{tile} fill="url(#br)"/>' + glyph('cable', s * .22, s * .22, s * .56, '#10131c', 2.2))
     elif key == 'server-dash':
         # Its own favicon (512 units), with its ids prefixed so they can't clash with the card's.
         with open(os.path.join(PROJECT_ICONS, 'server-dash.svg'), encoding='utf-8') as f:
@@ -340,117 +334,105 @@ def app_icon(key, s):
             inner = re.sub(r'^.*?<svg[^>]*>|</svg>\s*$', '', f.read(), flags=re.S)
         inner = re.sub(r'<!--.*?-->', '', inner, flags=re.S).replace('id="tile"', 'id="kvtile"').replace('url(#tile)', 'url(#kvtile)')
         out += f'<svg width="{s}" height="{s}" viewBox="2 2 60 60">{inner}</svg>'
-    # A soft gloss and rim so every icon reads as the same clay tile.
-    out += (f'</g><rect width="{s}" height="{s / 2:.0f}" rx="{r}" fill="#fff" opacity=".07"/>'
+    out += (f'</g><rect width="{s}" height="{s / 2:.0f}" rx="{r}" fill="#fff" opacity=".06"/>'
             f'<rect x=".75" y=".75" width="{s - 1.5}" height="{s - 1.5}" rx="{r - .75}" fill="none" stroke="#fff" stroke-opacity=".14" stroke-width="1.5"/>')
     return out
 
 
 def projects_title():
-    """The Featured Projects heading on its own, so each project card below it can be a link."""
-    W, H = 1000, 66 + PAD
-    return svg(W, H, 'Featured projects', header_float('Featured Projects', 'Quest Log', BUTTER, W / 2, 0))
+    """The projects heading on its own, so each project card below it can be a link."""
+    W = 1000
+    p, h = plate('ls ~/projects', W / 2)
+    return svg(W, h + 6 + PAD, 'Featured projects', p, BLINK)
 
 
 def project_card(i):
-    """One featured project as a clay card. The README shows two side by side, each half of NARROW
-    wide; card i%2 sits 6px in, so a pair fills the row edge to edge with a 12px gap."""
-    key, name, (status, col), kind, desc, tech = PROJECTS[i]
-    W, w, h = 500, 494, 206
-    H = h + 6 + PAD
+    """One featured project as an editor window. The README shows two side by side, each half of
+    NARROW wide; card i%2 sits 6px in, so a pair fills the row edge to edge with a 12px gap."""
+    key, name, repo, (status, col), kind, desc, tech = PROJECTS[i]
+    W, w, h = 500, 494, 228
+    H = h + 8 + PAD
     x = (i % 2) * 6
     delay = i * .5
-    sw = 26 + len(status) * 7.4
     chips, cx = [], x + 22
     for t in tech:
-        tw = round(20 + len(t) * 6.9)
-        chips.append(f'<rect x="{cx}" y="168" width="{tw}" height="22" rx="11" fill="{SLOT}" stroke="{EDGE}" stroke-width="1.5"/>'
-                     f'<text x="{cx + tw / 2:.1f}" y="183" font-family="{MONO}" font-size="11" font-weight="700" fill="{TEXT_SOFT}" text-anchor="middle">{esc(t)}</text>')
+        tw = round(18 + len(t) * 7.2)
+        chips.append(f'<rect x="{cx}" y="192" width="{tw}" height="22" rx="6" fill="{LIP}"/>'
+                     f'<rect x="{cx}" y="189" width="{tw}" height="22" rx="6" fill="{CARD_TOP}" stroke="{EDGE}" stroke-width="1.2"/>'
+                     f'<text x="{cx + tw / 2:.1f}" y="204" font-family="{MONO}" font-size="12" font-weight="700" fill="{TEXT_SOFT}" text-anchor="middle">{esc(t)}</text>')
         cx += tw + 8
-    lines = ''.join(f'<text x="{x + 22}" y="{132 + j * 20}" font-family="{SANS}" font-size="13.5" fill="{TEXT_SOFT}">{esc(t)}</text>'
+    lines = ''.join(f'<text x="{x + 22}" y="{152 + j * 19}" font-family="{MONO}" font-size="12.4" fill="{TEXT_SOFT}">{esc(t)}</text>'
                     for j, t in enumerate(desc))
+    bdg, _ = badge(f'[{status}]', col, x + 102, 50)
     style = f'''
 .bob {{ animation: bob 4.5s ease-in-out infinite; animation-delay: {-delay}s; }}
 @keyframes bob {{ 50% {{ transform: translateY(-4px); }} }}
-.shine {{ animation: shine 7s ease-in-out infinite; animation-delay: {delay}s; }}
-@keyframes shine {{ 0%, 4% {{ transform: skewX(-20deg) translateX(-80px); }} 24%, 100% {{ transform: skewX(-20deg) translateX(620px); }} }}
 .go {{ animation: go 2.4s ease-in-out infinite; animation-delay: {-delay}s; }}
 @keyframes go {{ 50% {{ transform: translate(2px, -2px); }} }}
 '''
-    body = f'''<defs>{shadow_filter('soft', 6, 6, 0.35)}
-<clipPath id="card"><rect x="{x}" y="0" width="{w}" height="{h}" rx="22"/></clipPath>
-<linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-<g filter="url(#soft)">{raised(x, 0, w, h, 22)}</g>
-<g clip-path="url(#card)"><rect class="shine" x="0" y="0" width="80" height="{H}" fill="url(#g)" transform="skewX(-20)"/></g>
-<g transform="translate({x + 22} 22)"><g class="bob">{app_icon(key, 68)}</g></g>
-<rect x="{x + 108}" y="22" width="{sw:.0f}" height="22" rx="11" fill="{col[2]}" fill-opacity=".22" stroke="{col[1]}" stroke-opacity=".6" stroke-width="1.5"/>
-<text x="{x + 108 + sw / 2:.0f}" y="37" font-family="{MONO}" font-size="11" font-weight="800" letter-spacing=".5" fill="{col[0]}" text-anchor="middle">{esc(status)}</text>
-<text x="{x + 108}" y="74" font-family="{SANS}" font-size="24" font-weight="800" fill="{TEXT}">{esc(name)}</text>
-<text x="{x + 108}" y="95" font-family="{MONO}" font-size="11.5" fill="{TEXT_DIM}">{esc(kind)}</text>
-<g transform="translate({x + w - 32} 33)"><circle r="14" fill="{CARD_TOP}"/>
-<g class="go"><path d="M-4 4 L4 -4 M-2.5 -4 H4 V2.5" fill="none" stroke="{col[1]}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g></g>
+    body = f'''{window(w, h, f'~/projects/{repo.split("/")[1]}', 'p', bar=34, x=x, rx=14, depth=7)}
+<g transform="translate({x + w - 22} 17)"><g class="go"><path d="{ARROW}" fill="none" stroke="{col[1]}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></g>
+<g transform="translate({x + 22} 52)"><g class="bob">{app_icon(key, 62)}</g></g>
+{bdg}
+<text x="{x + 102}" y="100" font-family="{MONO}" font-size="22" font-weight="800" fill="{TEXT}">{esc(name)}</text>
+<text x="{x + 102}" y="120" font-family="{MONO}" font-size="12" fill="{TEXT_DIM}"># {esc(kind)} · {esc(repo.split('/')[0])}</text>
 {lines}
 {''.join(chips)}'''
     label = f'{name} ({status}): {kind}. {" ".join(desc)} Built with {", ".join(tech)}.'
     return svg(W, H, label, body, style)
 
 
-# ─────────────────────────────── stack: inventory ───────────────────────────────
+# ─────────────────────────────── stack ───────────────────────────────
 
 GROUPS = [
-    ('Cloud & Deploy', SKY, [('AWS', 'aws'), ('Azure', 'azure'), ('Cloudflare', 'cloudflare'), ('Docker', 'docker'),
-                             ('Kubernetes', 'kubernetes'), ('K3s', 'k3s'), ('Dokploy', 'dokploy')]),
-    ('Backend & Data', PEACH, [('NestJS', 'nestjs'), ('Node.js', 'nodejs'), ('Go', 'go'), ('Python', 'python'), ('Rust', 'rust'),
-                               ('C# / .NET', 'csharp'), ('PostgreSQL', 'postgresql'), ('MongoDB', 'mongodb'), ('Redis', 'redis')]),
-    ('Frontend', ROSE, [('React', 'react'), ('Next.js', 'nextjs'), ('Astro', 'astro'), ('Tailwind', 'tailwind')]),
-    ('DevOps & IaC', SAGE, [('Terraform', 'terraform'), ('GH Actions', 'github-actions'), ('Jenkins', 'jenkins'), ('ArgoCD', 'argocd'),
-                            ('Prometheus', 'prometheus'), ('Grafana', 'grafana'), ('Sentry', 'sentry')]),
-    ('AI & Workflow', LILAC, [('Claude', 'claude'), ('Git', 'git'), ('GitHub', 'github'), ('ClickUp', 'clickup')]),
+    ('cloud-and-deploy/', CYAN, [('AWS', 'aws'), ('Azure', 'azure'), ('Cloudflare', 'cloudflare'), ('Docker', 'docker'),
+                                 ('Kubernetes', 'kubernetes'), ('K3s', 'k3s'), ('Dokploy', 'dokploy')]),
+    ('backend-and-data/', AMBER, [('NestJS', 'nestjs'), ('Node.js', 'nodejs'), ('Go', 'go'), ('Python', 'python'), ('Rust', 'rust'),
+                                  ('C# / .NET', 'csharp'), ('PostgreSQL', 'postgresql'), ('MongoDB', 'mongodb'), ('Redis', 'redis')]),
+    ('frontend/', RED, [('React', 'react'), ('Next.js', 'nextjs'), ('Astro', 'astro'), ('Tailwind', 'tailwind')]),
+    ('devops-and-iac/', GREEN, [('Terraform', 'terraform'), ('GH Actions', 'github-actions'), ('Jenkins', 'jenkins'), ('ArgoCD', 'argocd'),
+                                ('Prometheus', 'prometheus'), ('Grafana', 'grafana'), ('Sentry', 'sentry')]),
+    ('ai-and-workflow/', PURPLE, [('Claude', 'claude'), ('Git', 'git'), ('GitHub', 'github'), ('ClickUp', 'clickup')]),
 ]
 PER_ROW = 9
 
 
 def stack():
-    """The toolbox as loose inventory slots (no panel), PER_ROW to a row; a group with more
-    tools than that wraps onto another row."""
+    """The toolbox as a directory listing: each group a folder, each tool a raised key in it
+    (no window), PER_ROW to a row; a group with more tools than that wraps onto another row."""
     W, gap, sh = 1000, 14, 100
     sw = (W - (PER_ROW - 1) * gap) / PER_ROW
-    title = header_float('My Toolbox', 'Inventory', SKY, W / 2, 0)
-    out, y, n = [], 102, 0
+    head, hh = plate('ls ~/stack', W / 2)
+    out, y, n = [], hh + 40, 0
     for name_, col, tools in GROUPS:
         _, cw = chip_label(name_, col, 0, 0)
         chip, _ = chip_label(name_, col, round((W - cw) / 2), y)
-        rule = f'stroke="{EDGE}" stroke-width="1.5" stroke-dasharray="2 6" stroke-linecap="round"'
-        out.append(chip + f'<path d="M0 {y + 14} H{(W - cw) / 2 - 14:.0f} M{(W + cw) / 2 + 14:.0f} {y + 14} H{W}" {rule}/>')
-        y += 44
+        rule = f'stroke="{EDGE}" stroke-width="1.5" stroke-dasharray="6 6"'
+        out.append(chip + f'<path d="M0 {y + 13} H{(W - cw) / 2 - 14:.0f} M{(W + cw) / 2 + 14:.0f} {y + 13} H{W}" {rule}/>')
+        y += 46
         for i, (name, key) in enumerate(tools):
             if i and i % PER_ROW == 0:
                 y += sh + 6 + gap
-            # A short last row sits centred.
             left = len(tools) - i + i % PER_ROW
             row_n = min(PER_ROW, left)
             x = (W - (row_n * sw + (row_n - 1) * gap)) / 2 + (i % PER_ROW) * (sw + gap)
             out.append(f'''<g transform="translate({x:.1f} {y})">
-  {raised(0, 0, round(sw, 1), sh, 18)}
-  <rect x="8" y="8" width="{sw - 16:.1f}" height="60" rx="13" fill="{SLOT}"/>
-  <rect x="8.75" y="8.75" width="{sw - 17.5:.1f}" height="58.5" rx="12.25" fill="none" stroke="{col[2]}" stroke-opacity=".35" stroke-width="1.5"/>
+  {raised(0, 0, round(sw, 1), sh, 12, CARD, LIP, 6, EDGE)}
+  <rect x="8" y="8" width="{sw - 16:.1f}" height="60" rx="8" fill="{SLOT}"/>
+  <rect x="8" y="8" width="{sw - 16:.1f}" height="2" rx="1" fill="{col[1]}" opacity=".55"/>
   <ellipse cx="{sw / 2:.1f}" cy="60" rx="18" ry="3.5" fill="#000" opacity=".5"/>
   <g class="item" style="animation-delay:{-n * .37:.2f}s">{logo(key, round(sw / 2 - 17, 1), 21, 34)}</g>
-  <clipPath id="c{n}"><rect x="8" y="8" width="{sw - 16:.1f}" height="60" rx="13"/></clipPath>
-  <g clip-path="url(#c{n})"><rect class="glint" style="animation-delay:{n * .2:.2f}s" x="-30" y="0" width="22" height="80" fill="#fff" opacity=".13" transform="skewX(-22)"/></g>
-  <text x="{sw / 2:.1f}" y="88" font-family="{SANS}" font-size="12.5" font-weight="700" fill="{TEXT}" text-anchor="middle">{esc(name)}</text>
+  <text x="{sw / 2:.1f}" y="88" font-family="{MONO}" font-size="11.5" font-weight="700" fill="{TEXT}" text-anchor="middle">{esc(name)}</text>
 </g>''')
             n += 1
         y += sh + 6 + 30
     H = y - 30 + PAD
-    style = '''
+    style = BLINK + '''
 .item { animation: hover 3.6s ease-in-out infinite; }
 @keyframes hover { 50% { transform: translateY(-3px); } }
-.glint { animation: glint 9s ease-in-out infinite; }
-@keyframes glint { 0% { transform: skewX(-22deg) translateX(0); } 8%, 100% { transform: skewX(-22deg) translateX(220px); } }
 '''
     body = f'''<defs>{shadow_filter('soft', 6, 6, 0.35)}</defs>
-<g filter="url(#soft)">{title}{''.join(out)}</g>'''
+<g filter="url(#soft)">{head}{''.join(out)}</g>'''
     names = ', '.join(name for _, _, tools in GROUPS for name, _ in tools)
     return svg(W, H, f'My toolbox: {names}', body, style)
 
@@ -458,73 +440,55 @@ def stack():
 # ─────────────────────────────── divider & footer ───────────────────────────────
 
 def divider():
-    """A plain dotted rule as wide as the blocks around it (they're shown at NARROW of the README's
-    width), centred between them: the block above leaves PAD under itself, which shrinks with it."""
+    """A dashed rule as wide as the blocks around it (they're shown at NARROW of the README's
+    width), centred between them, with a small `$` marker in the middle."""
     W = 1000
     pad = round(PAD * NARROW)
     H = 10 + 10 + pad
     x0 = W * (1 - NARROW) / 2
-    body = f'<path d="M{x0:g} 10 H{W - x0:g}" stroke="{LILAC[2]}" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 9"/>'
+    rule = f'stroke="{BLUE[2]}" stroke-opacity=".6" stroke-width="2" stroke-dasharray="8 6"'
+    body = (f'<path d="M{x0:g} 10 H{W / 2 - 24:g} M{W / 2 + 24:g} 10 H{W - x0:g}" {rule}/>'
+            f'<text x="{W / 2:g}" y="15" font-family="{MONO}" font-size="14" font-weight="800" fill="{GREEN[1]}" fill-opacity=".8" text-anchor="middle">$_</text>')
     return svg(W, H, '', body)
 
 
 def footer():
-    """A centred continue screen with an arcade button on the left and a joystick on the right."""
-    W, H = 1000, 260
-    # Arcade button, left.
-    biso = Iso(150, 104)
-    base_l = biso.box(-50, -50, 0, 100, 100, 20, SLATE)
-    bx, by = biso.p(0, 0, 20)
-    button_ = (f'<g class="btn"><ellipse cx="{bx:.1f}" cy="{by + 4:.1f}" rx="38" ry="20" fill="#c76a82"/>'
-               f'<ellipse cx="{bx:.1f}" cy="{by - 5:.1f}" rx="38" ry="20" fill="{ROSE[1]}"/>'
-               f'<ellipse cx="{bx - 9:.1f}" cy="{by - 10:.1f}" rx="15" ry="6" fill="#fff" opacity=".45"/></g>')
-    # Joystick, right.
-    jiso = Iso(850, 104)
-    base_r = jiso.box(-50, -50, 0, 100, 100, 20, SLATE)
-    jx, jy = jiso.p(0, 0, 20)
-    stick = (f'<ellipse cx="{jx:.1f}" cy="{jy:.1f}" rx="20" ry="10" fill="{SLATE[2]}"/>'
-             f'<g class="stick" style="transform-origin:{jx:.1f}px {jy:.1f}px">'
-             f'<rect x="{jx - 5:.1f}" y="{jy - 52:.1f}" width="10" height="52" rx="5" fill="#2b2640"/>'
-             f'{orb(round(jx, 1), round(jy - 58, 1), 17, PEACH, "knob")}</g>')
-    halo = (f'<ellipse class="halo" cx="{bx:.0f}" cy="{by + 20:.0f}" rx="120" ry="70" fill="url(#halo)"/>'
-            f'<ellipse class="halo h2" cx="{jx:.0f}" cy="{jy + 20:.0f}" rx="120" ry="70" fill="url(#halo)"/>')
-    sparks = ''.join(
-        f'<path d="M{bx + 58 * math.cos(a):.0f} {by - 5 + 34 * math.sin(a):.0f} l{11 * math.cos(a):.0f} {7 * math.sin(a):.0f}" stroke="{BUTTER[1]}" stroke-width="3" stroke-linecap="round"/>'
-        for a in [math.radians(d) for d in (200, 235, 270, 305, 340)])
+    """A closing terminal session, with a server rack on the left and a container stack on the right."""
+    W, H = 1000, 280
+    liso = Iso(150, 150)
+    left = rack(liso, -36, -24, 0, 4, 72, 48, 17)
+    lx, ly = liso.p(0, 0, 0)
+    riso = Iso(850, 150)
+    right = (container(riso, -30, -30, 0, 32, BLUE) + container(riso, 4, -30, 0, 32, CYAN)
+             + container(riso, -30, 4, 0, 32, PURPLE) + container(riso, -13, -13, 32, 32, GREEN))
+    rx_, ry_ = riso.p(0, 0, 0)
+    halo = (f'<ellipse class="halo" cx="{lx:.0f}" cy="{ly - 20:.0f}" rx="120" ry="80" fill="url(#halo)"/>'
+            f'<ellipse class="halo h2" cx="{rx_:.0f}" cy="{ry_ - 20:.0f}" rx="120" ry="80" fill="url(#halo)"/>')
     cx = W / 2
-    cont_x = cx - 70  # "CONTINUE?" plus a gap and one digit, centred as a group
-    digits = ''.join(f'<text class="d" style="animation-delay:{k - 10}s{";opacity:1" if k == 0 else ""}" x="{cont_x + 128:.0f}" y="152" '
-                     f'font-family="{MONO}" font-size="20" font-weight="800" fill="{ROSE[0]}">{9 - k}</text>' for k in range(10))
-    style = TWINKLE + '''
-.btn { animation: push 3s ease-in-out infinite; }
-@keyframes push { 0%, 70%, 100% { transform: translateY(0); } 80% { transform: translateY(7px); } }
-.stick { animation: stick 3s ease-in-out infinite; }
-@keyframes stick { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-12deg); } 60% { transform: rotate(10deg); } }
-.spark { opacity: 0; animation: spark 3s ease-out infinite; transform-box: fill-box; transform-origin: center; }
-@keyframes spark { 0%, 78% { opacity: 0; transform: scale(.6); } 85% { opacity: 1; } 100% { opacity: 0; transform: scale(1.25); } }
-.halo { animation: halo 3s ease-in-out infinite; }
-.h2 { animation-delay: -1.5s; }
-@keyframes halo { 0%, 70%, 100% { opacity: .45; } 82% { opacity: 1; } }
-.caret, .coin { animation: caret 1s steps(1) infinite; }
-@keyframes caret { 50% { opacity: 0; } }
-.d { opacity: 0; animation: cd 10s steps(1) infinite; }
-@keyframes cd { 0% { opacity: 1; } 10%, 100% { opacity: 0; } }
+    style = BLINK + '''
+.lift { animation: lift 5s ease-in-out infinite; }
+.l2 { animation-delay: -2.5s; }
+@keyframes lift { 50% { transform: translateY(-5px); } }
+.blink { animation: blink 2.4s steps(1) infinite; }
+@keyframes blink { 50% { opacity: .3; } }
+.halo { animation: halo 4s ease-in-out infinite; }
+.h2 { animation-delay: -2s; }
+@keyframes halo { 50% { opacity: .5; } }
 '''
     body = f'''<defs>{shadow_filter('soft', 12, 12, 0.55)}
-<radialGradient id="halo"><stop offset="0" stop-color="{ROSE[1]}" stop-opacity=".28"/><stop offset="1" stop-color="{ROSE[1]}" stop-opacity="0"/></radialGradient></defs>
-{panel(W, H, (ROSE[2], .5, .5, .6), 'f')}
-{stars(W, H, 22, 11)}
+<radialGradient id="halo"><stop offset="0" stop-color="{GREEN[1]}" stop-opacity=".16"/><stop offset="1" stop-color="{GREEN[1]}" stop-opacity="0"/></radialGradient></defs>
+{window(W, H, 'leo@dfanso: ~ — exit', 'f', glow=(GREEN[2], .5, .55, .6))}
 {halo}
-<g class="spark">{sparks}</g>
-<g filter="url(#soft)">{base_l}{button_}{base_r}{stick}</g>
-<text x="{cx}" y="62" font-family="{MONO}" font-size="13" font-weight="800" letter-spacing=".5" fill="{ROSE[1]}" text-anchor="middle">All Checks Passed</text>
-{title('Thanks For Stopping By!', cx, 110, 32, anchor='middle')}
-<text x="{cont_x:.0f}" y="152" font-family="{MONO}" font-size="20" font-weight="800" fill="{BUTTER[0]}">Continue?</text>{digits}
-<text x="{cx}" y="188" font-family="{SANS}" font-size="16" font-weight="600" fill="{TEXT_SOFT}" text-anchor="middle">Visit my site to see what I'm building lately</text>
-<text x="{cx}" y="220" font-family="{MONO}" font-size="14" fill="{PEACH[1]}" text-anchor="middle">itsme.dfanso.dev<tspan class="caret" fill="{TEXT}">_</tspan></text>
-<text class="coin" x="{bx:.0f}" y="236" font-family="{MONO}" font-size="11" font-weight="800" letter-spacing=".5" fill="{BUTTER[1]}" text-anchor="middle">Deploy</text>
-<text x="{jx:.0f}" y="236" font-family="{MONO}" font-size="11" font-weight="800" letter-spacing=".5" fill="{TEXT_DIM}" text-anchor="middle">Rollback?</text>'''
-    return svg(W, H + PAD, "Thanks for stopping by! Visit my website to see what I'm building lately.", body, style)
+<g filter="url(#soft)"><g class="lift">{left}</g><g class="lift l2">{right}</g></g>
+<text x="{cx + 10}" y="80" font-family="{MONO}" font-size="13" font-weight="800" fill="{GREEN[1]}" text-anchor="middle">all checks passed <tspan fill="{TEXT_DIM}">[ok]</tspan></text>
+<path d="M{cx - 96} 75 l4 4 l8 -9" fill="none" stroke="{GREEN[1]}" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+{command('echo "thanks for stopping by!"', cx, 124, 25, cursor=False)}
+<text x="{cx}" y="160" font-family="{MONO}" font-size="15" font-weight="600" fill="{TEXT_SOFT}" text-anchor="middle"># visit my site to see what I'm building lately</text>
+<text x="{cx}" y="196" font-family="{MONO}" font-size="15" font-weight="700" text-anchor="middle"><tspan fill="{GREEN[1]}">$</tspan><tspan fill="{TEXT}"> open </tspan><tspan fill="{CYAN[1]}">https://itsme.dfanso.dev</tspan><tspan class="cursor" fill="{TEXT}"> ▌</tspan></text>
+<text x="{cx}" y="236" font-family="{MONO}" font-size="12" fill="{TEXT_DIM}" text-anchor="middle">logout · exit 0</text>
+<text x="{lx:.0f}" y="252" font-family="{MONO}" font-size="12" font-weight="800" fill="{GREEN[1]}" text-anchor="middle">[deploy]</text>
+<text x="{rx_:.0f}" y="252" font-family="{MONO}" font-size="12" font-weight="800" fill="{TEXT_DIM}" text-anchor="middle">[rollback?]</text>'''
+    return svg(W, H + PAD + 8, "Thanks for stopping by! Visit my website to see what I'm building lately.", body, style)
 
 
 def main():
