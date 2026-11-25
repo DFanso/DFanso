@@ -17,7 +17,6 @@ from collections import Counter
 from theme import (AMBER, BLUE, CARD, CYAN, DEPTH, EDGE, GREEN, LIP, MONO, PAD, PURPLE, RED, SLOT, TEXT, TEXT_DIM,
                    TEXT_SOFT, command, esc, glyph, raised, svg, window)
 
-HEAT_WEEKS = 20  # how many weeks the streak card's heatmap shows
 
 
 # ───────────────────────────── data ─────────────────────────────
@@ -142,9 +141,6 @@ def collect(login):
         'longest': longest, 'longest_range': best,
         'langs': [(name, size, lang_color[name]) for name, size in langs.most_common()],
         'repos_per_lang': repos_per_lang,
-        # Every day of the last HEAT_WEEKS weeks (Monday to Sunday, the current week last), for the heatmap.
-        'recent': {d: days.get(d, 0) for d in (today - dt.timedelta(days=today.weekday() + 7 * (HEAT_WEEKS - 1) - k)
-                                                for k in range(7 * HEAT_WEEKS)) if d <= today},
         'last_active': max((d for d in order if days[d]), default=None),
     }
 
@@ -159,19 +155,6 @@ def fmt(n):
     if n >= 10_000:
         return f'{n / 1000:.1f}k'.replace('.0k', 'k')
     return f'{n:,}'
-
-
-def day(d):
-    return f'{d:%b} {d.day}, {d.year}' if d else ''
-
-
-def span(r):
-    if not r or not r[0]:
-        return 'start one today'
-    a, b = r
-    if a == b:
-        return day(a)
-    return f'{a:%b} {a.day} – {b:%b} {b.day}, {b.year}' if a.year == b.year else f'{day(a)} – {day(b)}'
 
 
 # ───────────────────────────── cards ─────────────────────────────
@@ -230,82 +213,42 @@ def fit(text, width, size):
     return round(min(size, width / (max(len(text), 1) * .6)), 2)
 
 
-HEAT = (SLOT, '#2d4a3e', '#41704a', '#73a14a', GREEN[1])  # none, then four levels
-
-
-def heatmap(s, x, y, cell=13, gap=3):
-    """The last HEAT_WEEKS weeks as a GitHub-style grid (a column a week, Monday on top), shaded
-    by quartiles of the active days. The current streak's days are outlined and today is ringed."""
-    days, today = s['recent'], s['today']
-    step = cell + gap
-    start = min(days)
-    active = sorted(n for n in days.values() if n)
-    cuts = [active[min(len(active) - 1, int(len(active) * q))] for q in (.25, .5, .75)] if active else []
-    streak = set()
-    if s['current_range']:
-        a, b = s['current_range']
-        streak = {d for d in days if a <= d <= b}
-    out, months, last_col = [], [], -9
-    for d, n in sorted(days.items()):
-        col, row = (d - start).days // 7, d.weekday()
-        cx, cy = x + col * step, y + row * step
-        level = 0 if not n else 1 + sum(n > c for c in cuts)
-        out.append(f'<rect x="{cx}" y="{cy}" width="{cell}" height="{cell}" rx="2.5" fill="{HEAT[level]}"/>')
-        if d in streak:
-            out.append(f'<rect x="{cx - 1}" y="{cy - 1}" width="{cell + 2}" height="{cell + 2}" rx="3.5" fill="none" stroke="{CYAN[0]}" stroke-width="1.6"/>')
-        if d == today:
-            out.append(f'<rect x="{cx - 2.5}" y="{cy - 2.5}" width="{cell + 5}" height="{cell + 5}" rx="4.5" fill="none" stroke="{AMBER[1]}" stroke-width="2"/>')
-        # A month's name over the first column that starts in it, unless it would crowd the last one.
-        if row == 0 and (d.day <= 7) and col - last_col >= 3:
-            months.append(f'<text x="{cx}" y="{y - 8}" font-family="{MONO}" font-size="12.5" fill="{TEXT_SOFT}">{d:%b}</text>')
-            last_col = col
-    labels = ''.join(f'<text x="{x - 8}" y="{y + r * step + cell - 2}" font-family="{MONO}" font-size="12" fill="{TEXT_DIM}" text-anchor="end">{t}</text>'
-                     for r, t in ((0, 'Mon'), (2, 'Wed'), (4, 'Fri'), (6, 'Sun')))
-    return ''.join(months) + labels + ''.join(out)
-
-
 def streak(s):
+    """The streak as three raised stat cards: the current streak large across the top, the
+    longest streak and total contributions side by side under it. No chart."""
     W, H = 494, PANEL_H - DEPTH
     today = s['today']
-
-    def stat(x, w, label, value, unit, sub, col, size=26):
-        unit_ = f'<tspan dx="7" font-size="15" font-weight="700" fill="{TEXT_SOFT}">{unit}</tspan>' if unit else ''
-        return (f'<g transform="translate({x} 50)">{raised(0, 0, w, 100, 10, CARD, LIP, 5, EDGE)}'
-                f'<rect x="0" y="12" width="3" height="20" rx="1.5" fill="{col[1]}"/>'
-                f'<text x="14" y="27" font-family="{MONO}" font-size="13" font-weight="700" fill="{TEXT_SOFT}">{esc(label)}</text>'
-                f'<text x="14" y="{36 + size * .8:.0f}" font-family="{MONO}" font-size="{size}" font-weight="800" fill="{col[0]}">{esc(value)}{unit_}</text>'
-                f'<text x="14" y="88" font-family="{MONO}" font-size="{fit(sub, w - 26, 13):g}" fill="{TEXT_DIM}">{esc(sub)}</text></g>')
-
     days = lambda n: 'day' if n == 1 else 'days'
+
+    def stat(x, y, w, h, label, value, unit, sub, col, size, sub_right=False):
+        unit_ = f'<tspan dx="10" font-size="{size * .42:.0f}" font-weight="700" fill="{TEXT_SOFT}">{esc(unit)}</tspan>' if unit else ''
+        sub_ = (f'<text x="{w - 18}" y="{h - 22}" font-family="{MONO}" font-size="{fit(sub, w * .42, 16):g}" fill="{TEXT_SOFT}" text-anchor="end">{esc(sub)}</text>'
+                if sub_right else
+                f'<text x="18" y="{h - 18}" font-family="{MONO}" font-size="{fit(sub, w - 36, 16):g}" fill="{TEXT_SOFT}">{esc(sub)}</text>')
+        return (f'<g transform="translate({x} {y})">{raised(0, 0, w, h, 12, CARD, LIP, 5, EDGE)}'
+                f'<rect x="0" y="16" width="4" height="22" rx="2" fill="{col[1]}"/>'
+                f'<text x="18" y="33" font-family="{MONO}" font-size="16" font-weight="700" fill="{col[1]}">{esc(label)}</text>'
+                f'<text x="16" y="{(h - 22) if sub_right else (h - 46)}" font-family="{MONO}" font-size="{size}" font-weight="800" fill="{col[0]}">{esc(value)}{unit_}</text>'
+                f'{sub_}</g>')
+
     if s['current']:
         a, _ = s['current_range']
-        hero = stat(20, 160, 'Current streak', str(s['current']), days(s['current']), f'since {short(a, today)}', CYAN, 36)
+        hero = stat(20, 54, W - 40, 112, 'Current streak', str(s['current']), 'day streak',
+                    f'since {short(a, today)}', CYAN, 60, True)
     else:
         last = s['last_active']
-        hero = stat(20, 160, 'No streak now', '0', 'days', f'last active {short(last, today)}' if last else 'start one today', CYAN, 36)
+        hero = stat(20, 54, W - 40, 112, 'No streak right now', '0', 'day streak',
+                    f'last active {short(last, today)}' if last else 'start one today', CYAN, 60, True)
     la, lb = s['longest_range'] if s['longest_range'][0] else (None, None)
-    longest = stat(188, 146, 'Longest streak', str(s['longest']), days(s['longest']),
-                   (short(la, today) if la == lb else f'{short(la, today)} – {short(lb, today)}') if la else '–', PURPLE)
-    total = stat(342, 132, 'Contributions', fmt(s['total']), '', f"since {s['joined']:%b %Y}", BLUE)
-
-    cell, gap = 12, 3
-    grid_w = HEAT_WEEKS * (cell + gap) - gap
-    gx = round((W - grid_w) / 2 + 16)
-    legend_y = 306
-    shades = ''.join(f'<rect x="{gx + 44 + k * 15}" y="{legend_y - 11}" width="12" height="12" rx="2.5" fill="{c}"/>' for k, c in enumerate(HEAT))
-    lx = gx + grid_w
-    legend = (f'<text x="{gx}" y="{legend_y}" font-family="{MONO}" font-size="12" fill="{TEXT_DIM}">less</text>{shades}'
-              f'<text x="{gx + 44 + 5 * 15 + 5}" y="{legend_y}" font-family="{MONO}" font-size="12" fill="{TEXT_DIM}">more</text>'
-              f'<rect x="{lx - 132}" y="{legend_y - 11}" width="13" height="13" rx="3" fill="none" stroke="{CYAN[0]}" stroke-width="1.6"/>'
-              f'<text x="{lx - 113}" y="{legend_y}" font-family="{MONO}" font-size="12" fill="{TEXT_DIM}">streak</text>'
-              f'<rect x="{lx - 60}" y="{legend_y - 12}" width="15" height="15" rx="4" fill="none" stroke="{AMBER[1]}" stroke-width="2"/>'
-              f'<text x="{lx}" y="{legend_y}" font-family="{MONO}" font-size="12" fill="{TEXT_DIM}" text-anchor="end">today</text>')
-    body = f'''{window(W, H, '~/streak — git log --streak', 'st', glow=(GREEN[2], .2, .2, .6))}
-{hero}{longest}{total}
-{heatmap(s, gx, 186, cell, gap)}
-{legend}'''
-    label = (f"Contribution streak: {s['current']} days now, longest {s['longest']} days, {s['total']:,} contributions in total. "
-             f"A heatmap shows the last {HEAT_WEEKS} weeks.")
+    half = (W - 40 - 12) / 2
+    longest = stat(20, 180, half, 120, 'Longest streak', str(s['longest']), days(s['longest']),
+                   (short(la, today) if la == lb else f'{short(la, today)} – {short(lb, today)}') if la else '–', PURPLE, 40)
+    total = stat(20 + half + 12, 180, half, 120, 'Contributions', fmt(s['total']), '', f"since {s['joined']:%b %Y}", BLUE, 40)
+    body = f'''{window(W, H, '~/streak — git log --streak', 'st', glow=(CYAN[2], .2, .25, .6))}
+{hero}{longest}{total}'''
+    label = (f"Contribution streak: {s['current']} days now"
+             + (f" (since {short(s['current_range'][0], today)})" if s['current'] else '')
+             + f", longest {s['longest']} days, {s['total']:,} contributions in total.")
     return body, '', label
 
 
@@ -369,7 +312,7 @@ def main():
     for name, text in cards.items():
         with open(os.path.join(out, name), 'w', encoding='utf-8', newline='\n') as f:
             f.write(text)
-    print({k: v for k, v in s.items() if k not in ('langs', 'recent')})
+    print({k: v for k, v in s.items() if k != 'langs'})
 
 
 if __name__ == '__main__':
