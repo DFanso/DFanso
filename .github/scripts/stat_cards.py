@@ -14,7 +14,7 @@ import sys
 import urllib.request
 from collections import Counter
 
-from theme import (AMBER, BLINK, BLUE, CARD, CYAN, DEPTH, EDGE, GREEN, LIP, MONO, PAD, PURPLE, RED, SLOT, TEXT, TEXT_DIM,
+from theme import (AMBER, BLUE, CARD, CYAN, DEPTH, EDGE, GREEN, LIP, MONO, PAD, PURPLE, RED, SLOT, TEXT, TEXT_DIM,
                    TEXT_SOFT, command, esc, glyph, raised, svg, window)
 
 SPARK_DAYS = 60
@@ -184,14 +184,14 @@ def player(s):
     big = f'''<g transform="translate(24 {ty0})">{raised(0, 0, 284, 2 * th + gap, 12, CARD, LIP, 5, EDGE)}
   <text x="20" y="32" font-family="{MONO}" font-size="12.5" font-weight="700"><tspan fill="{GREEN[1]}">$</tspan><tspan fill="{TEXT_SOFT}"> stats --lifetime</tspan></text>
   <text x="20" y="54" font-family="{MONO}" font-size="11.5" fill="{TEXT_DIM}"># lifetime contributions</text>
-  <text x="20" y="116" font-family="{MONO}" font-size="48" font-weight="800" fill="{GREEN[0]}">{fmt(s['total'])}<tspan class="cursor" fill="{GREEN[1]}" font-size="40">▌</tspan></text>
+  <text x="20" y="116" font-family="{MONO}" font-size="48" font-weight="800" fill="{GREEN[0]}">{fmt(s['total'])}</text>
   <text x="20" y="150" font-family="{MONO}" font-size="11.5" fill="{TEXT_DIM}">since {s['joined']:%b %Y} · private repos incl.</text>
 </g>'''
     body = f'''{window(W, H - DEPTH, 'leo@dfanso: ~ — neofetch', 'np', glow=(GREEN[2], .1, .4, .5))}
 {big}{''.join(out)}'''
     label = (f"{s['total']:,} lifetime contributions, {s['year']:,} this year. Pull requests {s['prs']:,}, issues {s['issues']:,}, "
              f"contributed to {s['contributed']} repos, {s['stars']} stars, {s['repos']} repositories, {s['followers']} followers, {fmt(s['views'])} profile views.")
-    return svg(W, H + PAD, label, body, BLINK)
+    return svg(W, H + PAD, label, body)
 
 
 PANEL_H = 330
@@ -294,7 +294,7 @@ def streak_and_languages(s):
     b1, s1, l1 = streak(s)
     b2, s2, l2 = languages(s)
     body = f'<g>{b1}</g>\n<g transform="translate(506 0)">{b2}</g>'
-    return svg(1000, PANEL_H + PAD, f'{l1} {l2}', body, BLINK + s1 + s2)
+    return svg(1000, PANEL_H + PAD, f'{l1} {l2}', body, s1 + s2)
 
 
 def main():

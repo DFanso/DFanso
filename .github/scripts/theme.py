@@ -60,7 +60,6 @@ NARROW = 0.88
 DEPTH = 8
 
 REDUCED = '@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }'
-BLINK = '.cursor { animation: cursor 1.1s steps(1) infinite; } @keyframes cursor { 50% { opacity: 0; } }'
 
 
 def svg(w, h, label, body, style=''):
@@ -160,7 +159,7 @@ def title_width(text, size):
     return t['width'] * size / t['upm'] if t else len(text) * size * .6
 
 
-def command(cmd, cx, y, size=26, color=GREEN, outline=None, cursor=True):
+def command(cmd, cx, y, size=26, color=GREEN, outline=None):
     """A section heading as a shell command, centred on cx: a green "$ " prompt, then the command.
     `outline` draws a dark stroke under it so it also reads where no window sits behind it."""
     extra = f' stroke="{outline}" stroke-width="6" stroke-linejoin="round" paint-order="stroke"' if outline else ''
@@ -168,18 +167,18 @@ def command(cmd, cx, y, size=26, color=GREEN, outline=None, cursor=True):
     w = pw + title_width(cmd, size)
     x0 = cx - w / 2
     return (title('$', x0, y, size, color[1], extra=extra) + title(cmd, x0 + pw, y, size, TEXT, extra=extra)
-            + (f'<rect class="cursor" x="{x0 + w + size * .25:.1f}" y="{y - size * .78:.1f}" width="{size * .5:.1f}" height="{size * .9:.1f}" fill="{color[1]}" opacity=".85"/>' if cursor else ''))
+            )
 
 
 def plate(cmd, cx, y=0, size=24, color=GREEN):
     """A section heading for blocks with no window behind them: the command on its own small raised
     terminal strip, so it stays readable on GitHub's light page. Returns (svg, height)."""
     pw = title_width('$', size) + size * .6
-    w = round(pw + title_width(cmd, size) + size * .9 + 72)
+    w = round(pw + title_width(cmd, size) + 72)
     h = 52
     x0 = cx - w / 2
     return (f'<g>{raised(x0, y, w, h, 12, PANEL_TOP, LIP, 6, EDGE)}'
-            f'{command(cmd, cx - size * .15, y + 35, size, color)}</g>'), h
+            f'{command(cmd, cx, y + 35, size, color)}</g>'), h
 
 
 def chip_label(text, color, x, y):
