@@ -14,4 +14,4 @@ The featured projects' own icons, copied from their repos: `kv.svg` (key-vault-f
 
 ## Title font
 
-The section titles and the name in the banner are outlines of [Fredoka](https://github.com/google/fonts/tree/main/ofl/fredoka) (SIL Open Font License 1.1), stored in `../titles.json` by `../make_titles.py`. The font file itself is not in this repo.
+The section headings (the shell commands), the name in the banner and the floating `</>` and `{ }` are outlines of [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) at weight 800 (SIL Open Font License 1.1), stored in `../titles.json` by `../make_titles.py`. The font file itself is not in this repo. The rest of the text asks for JetBrains Mono and falls back to the viewer's own monospace font.

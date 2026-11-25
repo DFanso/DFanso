@@ -2,5 +2,5 @@
 <title></title>
 <style>
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }</style>
-<path d="M60 10 H940" stroke="#9aa3de" stroke-opacity=".55" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 9"/>
+<path d="M60 10 H476 M524 10 H940" stroke="#5072c2" stroke-opacity=".6" stroke-width="2" stroke-dasharray="8 6"/><text x="500" y="15" font-family="'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', 'Fira Code', Consolas, 'Liberation Mono', monospace" font-size="14" font-weight="800" fill="#9ece6a" fill-opacity=".8" text-anchor="middle">$_</text>
 </svg>

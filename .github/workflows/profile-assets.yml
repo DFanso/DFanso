@@ -35,7 +35,7 @@ jobs:
         with:
           github_user_name: ${{ github.repository_owner }}
           outputs: |
-            dist/github-snake-dark.svg?color_snake=#f5a98f&color_dots=#1f2638,#2f5f46,#4f8f5f,#7fbf78,#c4ecb6
+            dist/github-snake-dark.svg?color_snake=#7aa2f7&color_dots=#1f2335,#2d4a3e,#41704a,#73a14a,#9ece6a
 
       - name: Frame the snake to match the README
         run: python3 .github/scripts/frame_snake.py dist/github-snake-dark.svg dist/snake.svg

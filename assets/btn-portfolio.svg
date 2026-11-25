@@ -1,23 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="250" height="128" viewBox="0 0 250 128" role="img" aria-label="Portfolio: itsme.dfanso.dev">
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="134" viewBox="0 0 250 134" role="img" aria-label="Portfolio: itsme.dfanso.dev">
 <title>Portfolio: itsme.dfanso.dev</title>
-<style>
+<style>.cursor { animation: cursor 1.1s steps(1) infinite; } @keyframes cursor { 50% { opacity: 0; } }
 .pop { animation: pop 6s ease-in-out infinite; animation-delay: -0.0s; }
 @keyframes pop { 0%, 8%, 100% { transform: translateY(0); } 4% { transform: translateY(-4px); } }
-.shine { animation: shine 6s ease-in-out infinite; animation-delay: 0.0s; }
-@keyframes shine { 0%, 4% { transform: skewX(-20deg) translateX(-60px); } 22%, 100% { transform: skewX(-20deg) translateX(300px); } }
 .go { animation: go 2.4s ease-in-out infinite; animation-delay: -0.0s; }
 @keyframes go { 50% { transform: translate(2px, -2px); } }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; } }</style>
-<defs><filter id="soft" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#05040a" flood-opacity="0.35"/></filter>
-<clipPath id="tile"><rect x="0" y="0" width="241" height="108" rx="18"/></clipPath>
-<linearGradient id="g" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
-<g filter="url(#soft)"><rect x="0" y="6" width="241" height="108" rx="18" fill="#090c12"/><rect x="0" y="0" width="241" height="108" rx="18" fill="#1e2536"/><rect x="0.75" y="0.75" width="239.5" height="106.5" rx="17.25" fill="none" stroke="#252d42" stroke-width="1.5"/></g>
-<g clip-path="url(#tile)"><rect class="shine" x="0" y="0" width="60" height="128" fill="url(#g)" transform="skewX(-20)"/></g>
-<g class="pop"><circle cx="30" cy="30" r="19" fill="#f5a98f"/><circle cx="30" cy="27" r="19" fill="#ffd2c2"/><svg x="19" y="16" width="22" height="22" viewBox="0 0 24 24" overflow="visible"><g fill="none" stroke="#2e2a36" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594zM20 2v4m2-2h-4"/><circle cx="4" cy="20" r="2"/></g></svg></g>
-<text x="60" y="31" font-family="ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', Consolas, 'Liberation Mono', monospace" font-size="11.5" font-weight="800" letter-spacing=".5" fill="#f5a98f">Visit</text>
-<g transform="translate(211 27)"><circle r="13" fill="#252d42"/>
-<g class="go"><path d="M-4 4 L4 -4 M-2.5 -4 H4 V2.5" fill="none" stroke="#f5a98f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g></g>
-<text x="18" y="78" font-family="'SF Pro Rounded', ui-rounded, 'Nunito', 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif" font-size="21" font-weight="800" fill="#f2f1ec">Portfolio</text>
-<text x="18" y="96" font-family="ui-monospace, 'SF Mono', 'Cascadia Mono', 'JetBrains Mono', Consolas, 'Liberation Mono', monospace" font-size="11" fill="#677089">itsme.dfanso.dev</text>
+<defs><filter id="bsh" x="-5%" y="-5%" width="110%" height="130%"><feDropShadow dx="0" dy="10" stdDeviation="7" flood-color="#05060a" flood-opacity=".4"/></filter><linearGradient id="bbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f2133"/><stop offset="1" stop-color="#1a1b26"/></linearGradient><pattern id="bgrid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0 H0 V24" fill="none" stroke="#fff" stroke-opacity=".025"/></pattern><clipPath id="bclip"><rect x="0" y="0" width="241" height="112" rx="12"/></clipPath></defs><g filter="url(#bsh)"><rect x="0" y="6" width="241" height="112" rx="12" fill="#0b0c12"/><rect x="0" y="3.0" width="241" height="112" rx="12" fill="#11121a"/></g><rect x="0" y="0" width="241" height="112" rx="12" fill="url(#bbg)"/><g clip-path="url(#bclip)"><rect x="0" y="0" width="241" height="112" fill="url(#bgrid)"/><rect x="0" y="0" width="241" height="28" fill="#24283b"/><path d="M0 28 H241" stroke="#2f354d" stroke-width="1.5"/><circle cx="22" cy="14.0" r="5.5" fill="#f7768e"/><circle cx="40" cy="14.0" r="5.5" fill="#e0af68"/><circle cx="58" cy="14.0" r="5.5" fill="#9ece6a"/></g><rect x="0.75" y="0.75" width="239.5" height="110.5" rx="11.25" fill="none" stroke="#2f354d" stroke-width="1.5"/><path d="M12 1.5 H229" stroke="#fff" stroke-opacity=".07" stroke-width="1.5" stroke-linecap="round"/>
+<text x="120.5" y="18.5" font-family="'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', 'Fira Code', Consolas, 'Liberation Mono', monospace" font-size="11" font-weight="600" fill="#737aa2" text-anchor="middle">~/portfolio</text>
+<g transform="translate(223 14)"><g class="go"><path d="M-4 4 L4 -4 M-2.5 -4 H4 V2.5" fill="none" stroke="#9ece6a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g></g>
+<g class="pop"><rect x="16" y="47" width="40" height="40" rx="10" fill="#6f9b45"/><rect x="16" y="43" width="40" height="40" rx="10" fill="#9ece6a"/><rect x="16.75" y="43.75" width="38.5" height="38.5" rx="9.25" fill="none" stroke="#c3e88d" stroke-width="1.5"/><svg x="25" y="52" width="22" height="22" viewBox="0 0 24 24" overflow="visible"><g fill="none" stroke="#10131c" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20a14.5 14.5 0 0 0 0-20M2 12h20"/></g></svg></g>
+<text x="70" y="56" font-family="'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', 'Fira Code', Consolas, 'Liberation Mono', monospace" font-size="11.5" font-weight="700"><tspan fill="#9ece6a">$</tspan><tspan fill="#737aa2"> open</tspan></text>
+<text x="70" y="77" font-family="'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', 'Fira Code', Consolas, 'Liberation Mono', monospace" font-size="17" font-weight="800" fill="#c8d3f5">portfolio</text>
+<text x="70" y="100" font-family="'JetBrains Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', 'Fira Code', Consolas, 'Liberation Mono', monospace" font-size="11" fill="#9ece6a">itsme.dfanso.dev<tspan class="cursor" fill="#c8d3f5">▌</tspan></text>
 </svg>

@@ -1,4 +1,4 @@
-"""Draws the live GitHub stat cards in the README's dark arcade theme (see
+"""Draws the live GitHub stat cards in the README's dark terminal theme (see
 theme.py): the headline stats (lifetime and this year's contributions, PRs and
 so on, private repos included when the token can see them), the contribution
 streak and top languages. Run by
@@ -14,10 +14,10 @@ import sys
 import urllib.request
 from collections import Counter
 
-from theme import (BUTTER, CARD_TOP, LILAC, LIP, MONO, PAD, PEACH, ROSE, SAGE, SANS, SKY, TEXT, TEXT_DIM, TEXT_SOFT, TWINKLE,
-                   esc, glyph, header_center, panel, raised, shadow_filter, stars, svg)
+from theme import (AMBER, BLINK, BLUE, CARD, CYAN, DEPTH, EDGE, GREEN, LIP, MONO, PAD, PURPLE, RED, SLOT, TEXT, TEXT_DIM,
+                   TEXT_SOFT, command, esc, glyph, raised, svg, window)
 
-INK = '#2e2a36'
+SPARK_DAYS = 60
 
 
 # ───────────────────────────── data ─────────────────────────────
@@ -124,6 +124,8 @@ def collect(login):
         'longest': longest, 'longest_range': best,
         'langs': [(name, size, lang_color[name]) for name, size in langs.most_common()],
         'repos_per_lang': repos_per_lang,
+        # The last SPARK_DAYS days, oldest first, for the streak card's sparkline.
+        'recent': [days.get(today - dt.timedelta(days=k), 0) for k in range(SPARK_DAYS - 1, -1, -1)],
     }
 
 
@@ -152,148 +154,147 @@ def span(r):
     return f'{a:%b} {a.day} – {b:%b} {b.day}, {b.year}' if a.year == b.year else f'{day(a)} – {day(b)}'
 
 
-_bars = [0]
-
-
-def bar(x, y, w, h, pct, color, cls='fill', delay=0):
-    """A sunken track with a clay fill; a glint runs along the fill now and then."""
-    fw = max(w * min(pct, 1), h if pct > 0 else 0)
-    track = f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{h / 2}" fill="{LIP}"/>'
-    if not fw:
-        return track
-    _bars[0] += 1
-    cid = f'bar{_bars[0]}'
-    return (track
-            + f'<clipPath id="{cid}"><rect x="{x}" y="{y}" width="{fw:.1f}" height="{h}" rx="{h / 2}"/></clipPath>'
-            f'<g clip-path="url(#{cid})"><rect x="{x}" y="{y}" width="{fw:.1f}" height="{h}" fill="{color}"/>'
-            f'<rect x="{x}" y="{y + h * .15:.1f}" width="{fw:.1f}" height="{h * .3:.1f}" fill="#fff" opacity=".3"/>'
-            f'<rect class="{cls}" style="animation-delay:{delay}s" x="{x - 30}" y="{y - 2}" width="18" height="{h + 4}" fill="#fff" opacity=".45"/></g>')
-
-
-GROW = '''
-.fill { animation: glint 4s ease-in-out infinite; }
-@keyframes glint { 0% { transform: translateX(0); } 45%, 100% { transform: translateX(400px); } }
-'''
-
-
 # ───────────────────────────── cards ─────────────────────────────
 
 def player(s):
-    """The headline numbers as loose clay tiles (no panel), to sit right under the hero."""
-    # Flush with the panels (x 0..1000).
-    W, H = 1000, 92 + 12 + 92 + 6 + PAD
+    """The headline numbers as a neofetch-style window: one big raised card for lifetime
+    contributions, then key: value tiles."""
+    W, H = 1000, 252
     tiles = [
-        ('git-pull-request', LILAC, s['prs'], 'Pull requests'),
-        ('bug', ROSE, s['issues'], 'Issues'),
-        ('folder-git-2', SKY, s['contributed'], 'Contributed to'),
-        ('star', BUTTER, s['stars'], 'Stars earned'),
-        ('book-marked', PEACH, s['repos'], 'Repositories'),
-        ('users', SAGE, s['followers'], 'Followers'),
-        ('eye', SKY, s['views'], 'Profile views'),
-        ('calendar-days', PEACH, s['year'], f"{s['today'].year} so far"),
+        ('git-pull-request', PURPLE, s['prs'], 'pull_requests'),
+        ('bug', RED, s['issues'], 'issues'),
+        ('folder-git-2', CYAN, s['contributed'], 'contributed_to'),
+        ('star', AMBER, s['stars'], 'stars'),
+        ('book-marked', BLUE, s['repos'], 'repositories'),
+        ('users', GREEN, s['followers'], 'followers'),
+        ('eye', CYAN, s['views'], 'profile_views'),
+        ('calendar-days', AMBER, s['year'], f"commits_{s['today'].year}"),
     ]
-    tw, th, gap, tx0 = 164, 92, 12, 308
+    tw, th, gap, tx0, ty0 = 155, 80, 12, 320, 60
     out = []
     for i, (icon, col, value, label) in enumerate(tiles):
-        x, y = tx0 + (i % 4) * (tw + gap), (i // 4) * (th + gap)
-        out.append(f'''<g transform="translate({x} {y})">{raised(0, 0, tw, th, 18)}
-  <g class="pop" style="animation-delay:{-i * .4:.1f}s"><circle cx="30" cy="30" r="16" fill="{col[1]}"/><circle cx="30" cy="27" r="16" fill="{col[0]}"/>{glyph(icon, 21, 18, 18, INK, 2.4)}</g>
-  <text x="56" y="32" font-family="{SANS}" font-size="12.5" font-weight="700" fill="{TEXT_SOFT}">{esc(label)}</text>
-  <text x="18" y="77" font-family="{SANS}" font-size="26" font-weight="800" fill="{TEXT}">{fmt(value)}</text>
+        x, y = tx0 + (i % 4) * (tw + gap), ty0 + (i // 4) * (th + gap)
+        out.append(f'''<g transform="translate({x} {y})">{raised(0, 0, tw, th, 10, CARD, LIP, 5, EDGE)}
+  <rect x="0" y="12" width="3" height="20" rx="1.5" fill="{col[1]}"/>
+  {glyph(icon, 14, 14, 15, col[1], 2.2)}
+  <text x="36" y="26" font-family="{MONO}" font-size="11.5" font-weight="700" fill="{TEXT_DIM}">{esc(label)}<tspan fill="{TEXT_DIM}">:</tspan></text>
+  <text x="14" y="64" font-family="{MONO}" font-size="25" font-weight="800" fill="{TEXT}">{fmt(value)}</text>
 </g>''')
 
-    big = f'''<g>{raised(0, 0, 296, 196, 24)}
-  <g class="bob"><circle cx="48" cy="52" r="26" fill="{BUTTER[2]}"/><circle cx="48" cy="47" r="26" fill="{BUTTER[0]}"/>
-  <circle cx="48" cy="47" r="20" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.5"/>{glyph('flame', 35, 34, 26, INK, 2.3)}</g>
-  <text x="90" y="44" font-family="{MONO}" font-size="11.5" font-weight="800" letter-spacing=".5" fill="{BUTTER[1]}">Lifetime</text>
-  <text x="90" y="62" font-family="{MONO}" font-size="11.5" font-weight="800" letter-spacing=".5" fill="{BUTTER[1]}">Contributions</text>
-  <text x="24" y="138" font-family="{SANS}" font-size="52" font-weight="900" fill="{TEXT}">{fmt(s['total'])}</text>
-  <text x="24" y="170" font-family="{SANS}" font-size="13" fill="{TEXT_SOFT}">since {s['joined']:%b %Y} · private repos included</text>
+    big = f'''<g transform="translate(24 {ty0})">{raised(0, 0, 284, 2 * th + gap, 12, CARD, LIP, 5, EDGE)}
+  <text x="20" y="32" font-family="{MONO}" font-size="12.5" font-weight="700"><tspan fill="{GREEN[1]}">$</tspan><tspan fill="{TEXT_SOFT}"> stats --lifetime</tspan></text>
+  <text x="20" y="54" font-family="{MONO}" font-size="11.5" fill="{TEXT_DIM}"># lifetime contributions</text>
+  <text x="20" y="116" font-family="{MONO}" font-size="48" font-weight="800" fill="{GREEN[0]}">{fmt(s['total'])}<tspan class="cursor" fill="{GREEN[1]}" font-size="40">▌</tspan></text>
+  <text x="20" y="150" font-family="{MONO}" font-size="11.5" fill="{TEXT_DIM}">since {s['joined']:%b %Y} · private repos incl.</text>
 </g>'''
-    style = '''
-.bob { animation: bob 4s ease-in-out infinite; }
-@keyframes bob { 50% { transform: translateY(-4px); } }
-.pop { animation: pop 6s ease-in-out infinite; }
-@keyframes pop { 0%, 8%, 100% { transform: translateY(0); } 4% { transform: translateY(-4px); } }
-'''
-    body = f'''<defs>{shadow_filter('soft', 6, 6, 0.35)}</defs>
-<g filter="url(#soft)">{big}{''.join(out)}</g>'''
+    body = f'''{window(W, H - DEPTH, 'leo@dfanso: ~ — neofetch', 'np', glow=(GREEN[2], .1, .4, .5))}
+{big}{''.join(out)}'''
     label = (f"{s['total']:,} lifetime contributions, {s['year']:,} this year. Pull requests {s['prs']:,}, issues {s['issues']:,}, "
              f"contributed to {s['contributed']} repos, {s['stars']} stars, {s['repos']} repositories, {s['followers']} followers, {fmt(s['views'])} profile views.")
-    return svg(W, H, label, body, style)
+    return svg(W, H + PAD, label, body, BLINK)
 
 
 PANEL_H = 330
 
 
+def sparkline(s, x, y, w, h):
+    """The last SPARK_DAYS days as little raised columns, the current streak lit green."""
+    days = s['recent']
+    n = len(days)
+    step = w / n
+    bw = step * .62
+    top = max(days) or 1
+    streak_from = n - s['current'] if s['current'] else n
+    if s['current'] and not days[-1]:
+        streak_from -= 1  # today hasn't started; the streak ended yesterday
+    out = [f'<rect x="{x - 8}" y="{y - 8}" width="{w + 16}" height="{h + 30}" rx="8" fill="{SLOT}"/>'
+           f'<path d="M{x} {y + h + .5} H{x + w}" stroke="{EDGE}" stroke-width="1"/>']
+    for i, v in enumerate(days):
+        bx = x + i * step + (step - bw) / 2
+        if not v:
+            out.append(f'<rect x="{bx:.1f}" y="{y + h - 2}" width="{bw:.1f}" height="2" rx="1" fill="{EDGE}"/>')
+            continue
+        bh = max(4, (h - 4) * (v / top) ** .6)
+        col = GREEN if i >= streak_from else BLUE
+        out.append(f'<rect x="{bx + 1.5:.1f}" y="{y + h - bh + 1.5:.1f}" width="{bw:.1f}" height="{bh:.1f}" rx="1.5" fill="{col[2]}"/>'
+                   f'<rect class="col" style="animation-delay:{i * .02:.2f}s" x="{bx:.1f}" y="{y + h - bh:.1f}" width="{bw:.1f}" height="{bh:.1f}" rx="1.5" fill="{col[1]}"/>')
+    out.append(f'<text x="{x}" y="{y + h + 16}" font-family="{MONO}" font-size="10.5" fill="{TEXT_DIM}">-{n}d</text>'
+               f'<text x="{x + w}" y="{y + h + 16}" font-family="{MONO}" font-size="10.5" fill="{TEXT_DIM}" text-anchor="end">today</text>'
+               f'<text x="{x + w / 2}" y="{y + h + 16}" font-family="{MONO}" font-size="10.5" fill="{TEXT_DIM}" text-anchor="middle">'
+               f'<tspan fill="{GREEN[1]}">■</tspan> streak  <tspan fill="{BLUE[1]}">■</tspan> commits</text>')
+    return ''.join(out)
+
+
 def streak(s):
-    W, H = 494, PANEL_H
-    cx, cy = W / 2, 208
+    W, H = 494, PANEL_H - DEPTH
 
-    def column(x, value, label, sub, col):
-        return (f'<text x="{x}" y="{cy - 4}" font-family="{SANS}" font-size="28" font-weight="800" fill="{TEXT}" text-anchor="middle">{value}</text>'
-                f'<text x="{x}" y="{cy + 22}" font-family="{SANS}" font-size="13" font-weight="700" fill="{col}" text-anchor="middle">{label}</text>'
-                f'<text x="{x}" y="{cy + 42}" font-family="{SANS}" font-size="11" fill="{TEXT_DIM}" text-anchor="middle">{esc(sub)}</text>')
+    def row(y, key, value, sub, col):
+        return (f'<text x="28" y="{y}" font-family="{MONO}" font-size="13" font-weight="700" fill="{TEXT_DIM}">{key}:</text>'
+                f'<text x="186" y="{y}" font-family="{MONO}" font-size="15" font-weight="800" fill="{col[1]}">{esc(value)}</text>'
+                f'<text x="{W - 28}" y="{y}" font-family="{MONO}" font-size="11" fill="{TEXT_DIM}" text-anchor="end">{esc(sub)}</text>')
 
-    ring = f'''<g transform="translate({cx} {cy})">
-  <circle r="52" fill="{LIP}"/>
-  <circle r="46" fill="none" stroke="url(#ringg)" stroke-width="9" stroke-dasharray="230 60" stroke-linecap="round" transform="rotate(-53)"/>
-  <circle r="36" fill="{CARD_TOP}"/>
-  <text y="12" font-family="{SANS}" font-size="32" font-weight="900" fill="{TEXT}" text-anchor="middle">{s['current']}</text>
-  <g transform="translate(-17 -84)">
-    <path d="M17 2c3 7 13 11 13 23a13 13 0 0 1-26 0c0-6 3-10 6-13 0 5 3 7 5 7-1-6 0-12 2-17Z" fill="{PEACH[2]}"/>
-    <path d="M17 14c2 5 7 7 7 13a7 7 0 0 1-14 0c0-3 2-5 3-6 1 3 2 4 3 4 0-4 0-7 1-11Z" fill="{BUTTER[0]}"/>
-  </g>
-</g>'''
-    # The ring holds still, its gap turned to the top under the flame; only a soft warm glow breathes behind it.
-    glow = f'<circle class="breathe" cx="{cx}" cy="{cy}" r="62" fill="{PEACH[2]}" filter="url(#warm)"/>'
-    body = f'''<defs>{shadow_filter('soft', 8, 8, 0.45)}
-<filter id="warm" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="14"/></filter>
-<linearGradient id="ringg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{BUTTER[1]}"/><stop offset="1" stop-color="{PEACH[2]}"/></linearGradient></defs>
-{panel(W, H, (PEACH[2], .5, .6, .5), 'st')}
-{stars(W, H, 14, 3)}
-{header_center('My Streak', 'Combo', PEACH, cx, 30, 'Days In A Row', 26)}
-{column(84, fmt(s['total']), 'Contributions', f"since {s['joined']:%b} {s['joined'].year}", SKY[1])}
-{column(W - 84, s['longest'], 'Best combo', span(s['longest_range']), LILAC[1])}
-{glow}
-<g filter="url(#soft)">{ring}</g>
-<text x="{cx}" y="{cy + 78}" font-family="{SANS}" font-size="13" font-weight="700" fill="{PEACH[1]}" text-anchor="middle">Current streak</text>
-<text x="{cx}" y="{cy + 96}" font-family="{SANS}" font-size="11" fill="{TEXT_DIM}" text-anchor="middle">{esc(span(s['current_range']))}</text>'''
-    style = TWINKLE + '''
-.breathe { opacity: .18; animation: breathe 3.6s ease-in-out infinite; }
-@keyframes breathe { 50% { opacity: .5; } }
+    plural = lambda n: f"{n} day" + ("" if n == 1 else "s")
+    body = f'''{window(W, H, '~/streak — git log', 'st', glow=(GREEN[2], .5, .3, .6))}
+{command('git log --streak', W / 2, 84, 20)}
+{row(126, 'current', plural(s['current']), span(s['current_range']), GREEN)}
+{row(152, 'longest', plural(s['longest']), span(s['longest_range']), PURPLE)}
+{row(178, 'total', fmt(s['total']), f"since {s['joined']:%b} {s['joined'].year}", CYAN)}
+{sparkline(s, 36, 210, W - 72, 58)}'''
+    style = '''
+.col { animation: col 6s ease-in-out infinite; }
+@keyframes col { 0%, 90%, 100% { opacity: 1; } 95% { opacity: .55; } }
 '''
     label = f"Contribution streak: {s['current']} days now, best {s['longest']} days, {s['total']:,} contributions in total."
     return body, style, label
 
 
+def meter(x, y, pct, color, cells=22):
+    """An htop-style meter: [|||||      ] drawn as cells, at least one lit for any non-zero share."""
+    lit = 0 if pct <= 0 else max(1, round(pct * cells))
+    out = [f'<text x="{x}" y="{y + 11}" font-family="{MONO}" font-size="13" font-weight="700" fill="{TEXT_DIM}">[</text>']
+    for k in range(cells):
+        on = k < lit
+        attrs = f'class="cell" style="animation-delay:{k * .05:.2f}s" fill="{color}"' if on else f'fill="{EDGE}" opacity=".6"'
+        out.append(f'<rect {attrs} x="{x + 11 + k * 7}" y="{y + 1}" width="5" height="12" rx="1"/>')
+    out.append(f'<text x="{x + 11 + cells * 7 + 1}" y="{y + 11}" font-family="{MONO}" font-size="13" font-weight="700" fill="{TEXT_DIM}">]</text>')
+    return ''.join(out)
+
+
 def languages(s):
-    W, H = 494, PANEL_H
+    W, H = 494, PANEL_H - DEPTH
     top = s['langs'][:6]
     total = sum(size for _, size, _ in s['langs']) or 1
-    rows = []
-    # 36px clear on both sides: dot and name, bar, percentage, repo count.
+    rows = [f'<rect x="20" y="108" width="{W - 40}" height="22" rx="4" fill="{GREEN[2]}" fill-opacity=".25"/>'
+            f'<text x="28" y="123" font-family="{MONO}" font-size="11" font-weight="800" fill="{GREEN[0]}">LANG</text>'
+            f'<text x="142" y="123" font-family="{MONO}" font-size="11" font-weight="800" fill="{GREEN[0]}">SIZE</text>'
+            f'<text x="380" y="123" font-family="{MONO}" font-size="11" font-weight="800" fill="{GREEN[0]}" text-anchor="end">%</text>'
+            f'<text x="{W - 28}" y="123" font-family="{MONO}" font-size="11" font-weight="800" fill="{GREEN[0]}" text-anchor="end">REPOS</text>']
     for i, (name, size, color) in enumerate(top):
-        y = 136 + i * 30
+        y = 142 + i * 25
         n = s['repos_per_lang'].get(name, 0)
-        rows.append(f'<circle cx="41" cy="{y + 6}" r="5" fill="{color}"/>'
-                    f'<text x="54" y="{y + 11}" font-family="{SANS}" font-size="13.5" font-weight="700" fill="{TEXT}">{esc(name)}</text>'
-                    f'{bar(156, y, 172, 12, size / total, color, "fill", i * .12)}'
-                    f'<text x="390" y="{y + 11}" font-family="{MONO}" font-size="12" font-weight="700" fill="{TEXT_SOFT}" text-anchor="end">{size / total * 100:.1f}%</text>'
-                    f'<text x="{W - 36}" y="{y + 11}" font-family="{MONO}" font-size="11" fill="{TEXT_DIM}" text-anchor="end">{f"{n} repo" + ("s" if n > 1 else "") if n else "·"}</text>')
-    body = f'''{panel(W, H, (SKY[2], .9, .1, .6), 'lg')}
-{header_center('Top Languages', 'Skill Tree', SKY, W / 2, 30, 'By Code Size · Private Repos Too', 26)}
-{''.join(rows)}'''
+        rows.append(f'<circle cx="32" cy="{y + 7}" r="4" fill="{color}"/>'
+                    f'<text x="42" y="{y + 11}" font-family="{MONO}" font-size="12.5" font-weight="700" fill="{TEXT}">{esc(name[:11])}</text>'
+                    f'{meter(140, y, size / total, color)}'
+                    f'<text x="380" y="{y + 11}" font-family="{MONO}" font-size="12" font-weight="700" fill="{TEXT_SOFT}" text-anchor="end">{size / total * 100:.1f}</text>'
+                    f'<text x="{W - 28}" y="{y + 11}" font-family="{MONO}" font-size="12" fill="{TEXT_DIM}" text-anchor="end">{n if n else "-"}</text>')
+    body = f'''{window(W, H, '~/langs — top', 'lg', glow=(BLUE[2], .9, .1, .6))}
+{command('top --languages', W / 2, 84, 20, BLUE)}
+{''.join(rows)}
+<text x="28" y="{H - 16}" font-family="{MONO}" font-size="11" fill="{TEXT_DIM}"># by code size · private repos too</text>'''
     label = 'Top languages: ' + ', '.join(f'{n} {sz / total * 100:.0f}%' for n, sz, _ in top)
-    return body, GROW, label
+    style = '''
+.cell { animation: cell 5s ease-in-out infinite; }
+@keyframes cell { 0%, 86%, 100% { opacity: 1; } 92% { opacity: .5; } }
+'''
+    return body, style, label
 
 
 def streak_and_languages(s):
-    """The streak and top languages panels side by side in one image, with the same 12px gap as the tiles."""
+    """The streak and top languages windows side by side in one image, with a 12px gap."""
     b1, s1, l1 = streak(s)
     b2, s2, l2 = languages(s)
     body = f'<g>{b1}</g>\n<g transform="translate(506 0)">{b2}</g>'
-    return svg(1000, PANEL_H + PAD, f'{l1} {l2}', body, s1 + s2)
+    return svg(1000, PANEL_H + PAD, f'{l1} {l2}', body, BLINK + s1 + s2)
 
 
 def main():
@@ -307,7 +308,7 @@ def main():
     for name, text in cards.items():
         with open(os.path.join(out, name), 'w', encoding='utf-8', newline='\n') as f:
             f.write(text)
-    print({k: v for k, v in s.items() if k not in ('months', 'langs')})
+    print({k: v for k, v in s.items() if k not in ('months', 'langs', 'recent')})
 
 
 if __name__ == '__main__':
