@@ -43,13 +43,31 @@ USER_QUERY = '''query($login: String!) { user(login: $login) {
   issues { totalCount }
   repositoriesContributedTo(contributionTypes: [COMMIT, ISSUE, PULL_REQUEST, REPOSITORY]) { totalCount }
   allRepos: repositories(ownerAffiliations: OWNER) { totalCount }
-  repositories(first: 100, ownerAffiliations: OWNER, isFork: false) { nodes {
-    stargazerCount
-    primaryLanguage { name color }
-    languages(first: 10, orderBy: { field: SIZE, direction: DESC }) { edges { size node { name color } } }
-  } }
   contributionsCollection { contributionYears }
 } }'''
+
+# Every owned non-fork repo, 100 a page, for the stars and language totals.
+REPOS_QUERY = '''query($login: String!, $after: String) { user(login: $login) {
+  repositories(first: 100, after: $after, ownerAffiliations: OWNER, isFork: false) {
+    pageInfo { hasNextPage endCursor }
+    nodes {
+      stargazerCount
+      primaryLanguage { name color }
+      languages(first: 10, orderBy: { field: SIZE, direction: DESC }) { edges { size node { name color } } }
+    }
+  }
+} }'''
+
+
+def owned_repos(login):
+    repos, after = [], None
+    while True:
+        page = gql(REPOS_QUERY, login=login, after=after)['user']['repositories']
+        repos += page['nodes']
+        if not page['pageInfo']['hasNextPage']:
+            return repos
+        after = page['pageInfo']['endCursor']
+
 
 YEAR_QUERY = '''query($login: String!, $from: DateTime!, $to: DateTime!) { user(login: $login) {
   contributionsCollection(from: $from, to: $to) {
@@ -100,7 +118,7 @@ def collect(login):
     cur_start = d + dt.timedelta(days=1)
 
     langs, lang_color, repos_per_lang, stars_ = Counter(), {}, Counter(), 0
-    for r in u['repositories']['nodes']:
+    for r in owned_repos(login):
         stars_ += r['stargazerCount']
         if r['primaryLanguage']:
             repos_per_lang[r['primaryLanguage']['name']] += 1
